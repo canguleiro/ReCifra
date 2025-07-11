@@ -23,7 +23,7 @@
 
 /* Estilos para as seções de editor e visualização */
         .editor, .visualizacao {
-            width: 47%;
+            width: 48%;
         }
 
 /* Estiliza Nome do Sistema */
@@ -99,12 +99,12 @@ h1 {
     white-space: pre-wrap; /* Preserva espaços e quebras de linha */
     background-color: #f7f7f7;
     width: 95%;
-    height: 386px;
+    height: 470px;
     padding: 10px;
     border: 0px solid #ccc;
     margin-top: 30px;
     margin-bottom: 10px;  
-    font-size: 14x;
+    font-size: 14px;
     font-family: monospace;
     resize: none; /* Impede o redimensionamento manual */
     overflow-x: hidden; /* Desativa barra horizontal */
@@ -246,7 +246,7 @@ p {
 
 /* Estilo do BOTÃO CHORDPRO */
 #chordPro {
-    display: relative; /* Faz o botão ficar em uma nova linha */
+    display: inline-block; /* Faz o botão ficar em uma nova linha */
     background-color: #E6E6E6;
     font-weight: bold;
     border: 1px solid #E6E6E6;
@@ -259,7 +259,7 @@ p {
 
 /* Estilo do BOTÃO VERSAL */
 #convertCaixaAlta {
-    display: relative; /* Faz o botão ficar em uma nova linha */
+    display: inline-block; /* Faz o botão ficar em uma nova linha */
     background-color: #E6E6E6;
     font-weight: bold;
     border: 0px solid #E6E6E6;
@@ -273,7 +273,7 @@ p {
 
 /* Estilo do Botão REFRÃO NEGRITO */
  #Refrao {
-    display: relative; /* Faz o botão ficar em uma nova linha */
+    display: inline-block; /* Faz o botão ficar em uma nova linha */
     margin-bottom: 8px; /* Espaço entre o botão e o textarea */
     background-color: #E6E6E6;
     font-weight: bold;
@@ -357,89 +357,37 @@ p {
   }
 
 
-/* Estilo do BOTÃO IMPORTAR */
-#importar {
-    display: relative; /* Faz o botão ficar em uma nova linha */
-    background-color: #333;
-    color: #fff;
-    font-weight: bold;
-    border: 1px solid #E6E6E6;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 8px;
-    margin: 0px 1px 0px 1px;
-    cursor: pointer;
- }
+/* Estilo PADRÃO dos BOTÕES ESCUROS */
+#exportar,
+#importar,
+#limparCifra,
+#novoArquivo,
+#limparAcordesUsados,
+#restaurarTomOriginal {
+  display: relative;
+  background-color: #333;
+  color: #fff;
+  font-weight: bold;
+  border: 1px solid #E6E6E6;
+  font-family: monospace;
+  border-radius: 5px;
+  padding: 8px;
+  margin: 0px 1px 0px 1px;
+  cursor: pointer;
+}
 
-/* Estilo do BOTÃO EXPORTAR */
-#exportar {
-    display: relative; /* Faz o botão ficar em uma nova linha */
-    background-color: #333;
-    color: #fff;
-    font-weight: bold;
-    border: 1px solid #E6E6E6;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 8px;
-    margin: 0px 1px 0px 1px;
-    cursor: pointer;
- }
-
-/* Estilo do BOTÃO LIMPAR CIFRA */
-#limparCifra {
-    display: relative; /* Faz o botão ficar em uma nova linha */
-    background-color: #333;
-    color: #fff;
-    font-weight: bold;
-    border: 1px solid #E6E6E6;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 8px;
-    margin: 0px 1px 0px 1px;
-    cursor: pointer;
- }
-
-/* Estilo do BOTÃO LIMPAR TUDO - REFRESH */
-#novoArquivo {
-    display: relative; /* Faz o botão ficar em uma nova linha */
-    background-color: #333;
-    color: #fff;
-    font-weight: bold;
-    border: 1px solid #E6E6E6;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 8px;
-    margin: 0px 1px 0px 1px;
-    cursor: pointer;
- }
-
-/* Estilo do BOTÃO LIMPAR ACORDES USADOS */
-#limparAcordesUsados {
-    display: relative; /* Faz o botão ficar em uma nova linha */
-    background-color: #333;
-    color: #fff;
-    font-weight: bold;
-    border: 1px solid #E6E6E6;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 8px;
-    margin: 0px 1px 0px 1px;
-    cursor: pointer;
- }
-
-
-/* Estilo do BOTÃO RENDERIZAR */
+/* Estilo do BOTÃO RENDERIZAR (destaque invertido) */
 #renderizar {
-    display: relative; /* Faz o botão ficar em uma nova linha */
-    background-color: #F7F7F7;
-    font-weight: bold;
-    border: 1px solid #333;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 8px;
-    margin: 0px 1px 0px 1px;
-    cursor: pointer;
- }
+  display: relative;
+  background-color: #F7F7F7;
+  font-weight: bold;
+  border: 1px solid #333;
+  font-family: monospace;
+  border-radius: 5px;
+  padding: 8px;
+  margin: 0px 1px 0px 1px;
+  cursor: pointer;
+}
 
            
     </style>
@@ -449,13 +397,15 @@ p {
 
    <!-- Painel de Edição -->
 
-    <h1><span class="ReCifra">#ReCifra - Editor de Acordes</span></h1>
-    <div class="container">
-        <div class="editor">
-            <div class="header">
+   <!-- Painel de Edição -->
+<div class="container">
+    <div class="editor">
+        <h1><span class="ReCifra">#ReCifra - Editor de Acordes</span></h1>
+        <div class="header">
+
                 <input type="text" id="songTitle" placeholder="TÍTULO" onpaste="renderVisor()" oninput="convertToUpperCase(); renderVisor()"/>
                 <input type="text" id="composer" placeholder="Composição" onpaste="renderVisor()" oninput="renderVisor()"/>
-                <select id="key" onchange="transposeSong(); "renderVisor()"/>
+                <select id="key" onchange="transposeSong(); renderVisor()">
                
 <!-- Opções de tonalidade -->
                   <option value="-">Tom</option>
@@ -521,7 +471,7 @@ p {
             <div id="chordlist"></div>
             
         
-          <!-- Botões de exportação e importação -->
+          <!-- Botões de comandos -->
             
             <button id="novoArquivo" onclick="refreshPagina()" title="Novo arquivo em branco">NOVO ARQUIVO</button>
             <button id="importar" title="Importar arquivos no formato .cho ou .txt">IMPORTAR</button>
@@ -529,14 +479,16 @@ p {
             <button id="exportar" onclick="exportChordPro()" title="Exportar arquivo no formato .cho">EXPORTAR</button>
             <button id="limparCifra" onclick="limparCifra()" title="Limpa as cifras ChordPro da Área de Texto e mantém a letra da música">LIMPAR CIFRA</button>
             <button id="limparAcordesUsados" onclick="limparAcordesUsados()" title="Limpa a lista de acordes usados na Área de Atalho">LIMPAR ACORDES</button>
-               
+            <button id="restaurarTomOriginal" onclick="restaurarTomOriginal()" title="Restaura a tonalidade original">RESTAURAR TOM</button>
+
+              
         </div>
 
 
 <!-- PAINEL DE VISUALIZAÇÃO -->
 
         <div class="visualizacao">
-    <h2><span class="Visu">PAINEL DE VISUALIZAÇÃO - CHORD OVER:</span></h2>
+    <h2><span class="Visu">PAINEL DE VISUALIZAÇÃO - CHORD OVER</span></h2>
     <div id="visor" class="visor"></div> <!-- Altere para 'div' ao invés de 'textarea' -->
     <button id="renderizar" onclick="renderVisor()" title="Processar alterações e gerar nova visualização">PROCESSAR</button>
 </div>
@@ -548,178 +500,114 @@ p {
 
 // Variáveis globais  
 let importedKey = null;  
+let textoOriginal = ''; // Salva a versão original sem alterações
+let tomSalvo = '';       // Salva o tom original definido
+let transposto = false;  // Flag para saber se houve transposição
 
 
 // FUNÇÃO RENDERIZAR VISOR
  
-function renderVisor() { 
-  const songTitle = document.getElementById('songTitle').value;  
-  const composer = document.getElementById('composer').value;  
-  const key = document.getElementById('key').value;  
-  const lyrics = document.getElementById('songLyrics').value; 
-  const textarea = document.getElementById('songLyrics');
+function renderVisor(keyParam) {
+  const songTitle = document.getElementById('songTitle').value;
+  const composer = document.getElementById('composer').value;
 
+  // Corrigido: garante que o tom será lido corretamente, mesmo se o seletor ainda não estiver pronto
+  const key = keyParam ?? (document.getElementById('key')?.value || 'C');
 
-textarea.addEventListener('DOMSubtreeModified', function() {  
-  renderVisor();  
-}); 
-
+  const lyrics = document.getElementById('songLyrics').value;
   let lines = lyrics.split('\n');
-    let htmlContent = `<h3>${songTitle} (${key})</h3><p>${composer}</p>`;
-   
-  let inTextFill = false;  // Flag para realçar linhas com {textfill: yellow}  
-  let inChorus = false;   // Flag para aplicar negrito dentro do {C:Chorus}  
-  
-  // Variável para armazenar se o "BIS" foi encontrado  
-  let foundBIS = false; // Flag para verificar se BIS foi encontrado  
-  
-  // Variável para armazenar se o "REFRÃO" foi encontrado  
-  let foundREFRÃO = false; // Flag para verificar se REFRAO foi encontrado  
-  
-  // Variável para armazenar se o "TRANSIÇÃO" foi encontrado  
-  let foundTRANSIÇÃO = false; // Flag para verificar se OBS foi encontrado
 
-// Variável para armazenar se o "OBS" foi encontrado  
-  let foundOBSERVAÇÃO = false; // Flag para verificar se OBS foi encontrado  
-  
-lines.forEach(line => {  
-  // Substitui {C:Chorus} por "REFRÃO" e ativa o modo negrito e highlight  
-  if (line.includes('{C:Chorus}')) {  
-   htmlContent += `<br><span style='background-color: #e6e6e6; font-weight: bold;'><---- REFRÃO ----></span><br><br>`;  
-   line = line.replace(/{C:Chorus}/g, '');  
-   line = line.replace(/\s*{C:}/g, '<span style="margin-bottom: 1px;"></span>');  
-   inChorus = true; // Inicia o negrito e highlight para as letras  
-  } else if (line.includes('{C:}')) {  
-   line = line.replace(/\s*{C:}/g, '<span style="margin-bottom: 1px;"></span>');  
-   inChorus = false; // Termina o negrito e highlight  
-  }  
+  let htmlContent = `<h3>${songTitle} (${key})</h3><p>${composer}</p>`;
 
-     // Verifica se a linha contém {textfill: #00ff00}  
-   if (line.includes('{textfill: #00ff00}')) {  
-    inTextFill = true; // Inicia o realce para BIS  
-    line = line.replace(/{textfill: #00ff00}/g, ''); // Remove o termo {textfill: #00ff00}  
-   }  
-  
-   // Verifica se a linha contém {textfill: #00ffff}  
-   if (line.includes('{textfill: #00ffff}')) {  
-    inTextFill = true; // Inicia o realce para REFRÃO  
-    line = line.replace(/{textfill: #00ffff}/g, ''); // Remove o termo {textfill: #00ffff}  
-   }  
+  let inTextFill = false;
+  let inChorus = false;
+  let foundBIS = false;
+  let foundREFRÃO = false;
+  let foundTRANSIÇÃO = false;
+  let foundOBSERVAÇÃO = false;
 
- // Verifica se a linha contém {textfill: #ffab44}  
-   if (line.includes('{textfill: #ffab44}')) {  
-    inTextFill = true; // Inicia o realce para TRANSIÇÃO  
-    line = line.replace(/{textfill: #ffab44}/g, ''); // Remove o termo {textfill: #ffab44}  
-   }  
-  
-   // Verifica se a linha contém {textfill: #ff9999}  
-   if (line.includes('{textfill: #ff9999}')) {  
-    inTextFill = true; // Inicia o realce para OBSERVAÇÃO  
-    line = line.replace(/{textfill: #ff9999}/g, ''); // Remove o termo {textfill: #ff9999}  
-   }  
-  
-   // Verifica se a linha contém {textfill: yellow}  
-   if (line.includes('{textfill: yellow}')) {  
-    inTextFill = true; // Inicia o realce  
-    line = line.replace(/{textfill: yellow}/g, ''); // Remove o termo {textfill: yellow}  
-   }  
-  
-   // Verifica se a linha contém {textfill}  
-   if (line.includes('{textfill}')) {  
-    line = line.replace(/{textfill}/g, ''); // Remove o termo {textfill}  
-    inTextFill = false; // Encerra o realce  
-   }  
-  
-   // Se estamos dentro do bloco de destaque e encontramos "BIS"  
-   if (inTextFill && line.trim() === 'BIS') {  
-    foundBIS = true; // Define que BIS foi encontrado  
-    htmlContent += `<span class="highlight" style="background-color: #00ff00;">BIS</span><br>`;  
-    return; // Não adiciona mais nada nesta linha  
-   }  
-  
-   // Se estamos dentro do bloco de destaque e encontramos "REFRÃO"  
-   if (inTextFill && line.trim() === 'REFRÃO') {  
-    foundREFRÃO = true; // Define que REFRÃO foi encontrado  
-    htmlContent += `<span class="highlight" style="background-color: #00ffff;">REFRÃO</span><br>`;  
-    return; // Não adiciona mais nada nesta linha  
-   }  
+  lines.forEach(line => {
+    if (line.includes('{C:Chorus}')) {
+      htmlContent += `<br><span style='background-color: #e6e6e6; font-weight: bold;'><---- REFRÃO ----></span><br><br>`;
+      line = line.replace(/{C:Chorus}/g, '').replace(/\s*{C:}/g, '<span style="margin-bottom: 1px;"></span>');
+      inChorus = true;
+    } else if (line.includes('{C:}')) {
+      line = line.replace(/\s*{C:}/g, '<span style="margin-bottom: 1px;"></span>');
+      inChorus = false;
+    }
 
-// Se estamos dentro do bloco de destaque e encontramos "TRANSIÇÃO"  
-   if (inTextFill && line.trim() === 'TRANSIÇÃO') {  
-    foundOTRANSIÇÃO = true; // Define que TRANSIÇÃO foi encontrado  
-    htmlContent += `<span class="highlight" style="background-color: #ffab44;">TRANSIÇÃO</span><br>`;  
-    return; // Não adiciona mais nada nesta linha  
-   }  
-  
-   // Se estamos dentro do bloco de destaque e encontramos "OBSERVAÇÃO"  
-   if (inTextFill && line.trim() === 'OBSERVAÇÃO') {  
-    foundOBSERVAÇÃO = true; // Define que OBSERVAÇÃO foi encontrado  
-    htmlContent += `<span class="highlight" style="background-color: #ff9999;">OBSERVAÇÃO</span><br>`;  
-    return; // Não adiciona mais nada nesta linha  
-   }  
-  
-   // Processamento de acordes e letras  
-   let chordLine = '';  // Linha de acordes  
-   let lyricLine = '';  // Linha de letras  
-   let isChord = false;  
-   let chordBuffer = '';  // Armazena o acorde temporariamente  
-   let chordOffset = 0;  // Compensa os espaços gerados pelos acordes anteriores  
-  
-   for (let i = 0; i < line.length; i++) {  
-    let char = line[i];  
-  
-    if (char === '[') {  
-      isChord = true;  
-      chordBuffer = '';  
-  
-    } else if (char === ']') {  
-      isChord = false;  
-      chordLine += `<span class="chord">${chordBuffer}</span>`;  
-  
-      // Calcula o comprimento do acorde para ajustar o espaçamento  
-      chordOffset += chordBuffer.length;  
-  
-    } else if (isChord) {  
-      chordBuffer += char;  
-    } else {  
-      lyricLine += char;  
-  
-      // Ajusta o número de espaços com base no comprimento dos acordes anteriores  
-      if (chordOffset > 0) {  
-       chordLine += '';  // Não adiciona espaço  
-       chordOffset--;  
-      } else {  
-       chordLine += '&nbsp;';  // Adiciona espaço correspondente  
-      }  
-    }  
-   }  
-  
-   // Aplica realce ou negrito, conforme as flags  
-   if (lyricLine.trim() !== '' || chordLine.trim() !== '') {  
-    let processedLyrics = lyricLine;  
-  
-    // Aplica o negrito se estiver dentro do bloco {C:Chorus}  
-    if (inChorus) {  
-      processedLyrics = `<strong>${processedLyrics}</strong>`;  
-    }  
-  
-    // Aplica o realce em amarelo se estiver dentro do bloco {textfill: yellow}  
-    if (inTextFill) {  
-      htmlContent += `<div class="cpro_line">  
-                   <div class="cpro_chords">${chordLine}</div>  
-                   <div class="cpro_lyrics"><span class="highlight">${processedLyrics}</span></div>  
-                </div>`;  
-    } else {  
-      htmlContent += `<div class="cpro_line">  
-                   <div class="cpro_chords">${chordLine}</div>  
-                   <div class="cpro_lyrics">${processedLyrics}</div>  
-                </div>`;  
-    }  
-   }  
-  });  
-  
-  document.getElementById('visor').innerHTML = htmlContent;  
-}  
+    // Marcações de cores
+    const colorMap = {
+      '{textfill: yellow}': 'yellow',
+      '{textfill: #00ff00}': '#00ff00',
+      '{textfill: #00ffff}': '#00ffff',
+      '{textfill: #ffab44}': '#ffab44',
+      '{textfill: #ff9999}': '#ff9999'
+    };
+
+    for (let tag in colorMap) {
+      if (line.includes(tag)) {
+        inTextFill = true;
+        line = line.replace(new RegExp(tag, 'g'), '');
+      }
+    }
+
+    if (line.includes('{textfill}')) {
+      line = line.replace(/{textfill}/g, '');
+      inTextFill = false;
+    }
+
+    // Destaques automáticos
+    const highlights = {
+      'BIS': '#00ff00',
+      'REFRÃO': '#00ffff',
+      'TRANSIÇÃO': '#ffab44',
+      'OBSERVAÇÃO': '#ff9999'
+    };
+
+    const trimmed = line.trim();
+    if (inTextFill && highlights[trimmed]) {
+      htmlContent += `<span class="highlight" style="background-color: ${highlights[trimmed]};">${trimmed}</span><br>`;
+      return;
+    }
+
+    // Renderização de acordes
+    let chordLine = '';
+    let lyricLine = '';
+    let isChord = false;
+    let chordBuffer = '';
+    let chordOffset = 0;
+
+    for (let i = 0; i < line.length; i++) {
+      let char = line[i];
+
+      if (char === '[') {
+        isChord = true;
+        chordBuffer = '';
+      } else if (char === ']') {
+        isChord = false;
+        chordLine += `<span class="chord">${chordBuffer}</span>`;
+        chordOffset += chordBuffer.length;
+      } else if (isChord) {
+        chordBuffer += char;
+      } else {
+        lyricLine += char;
+        chordLine += (chordOffset-- > 0) ? '' : '&nbsp;';
+      }
+    }
+
+    if (lyricLine.trim() !== '' || chordLine.trim() !== '') {
+      let processedLyrics = inChorus ? `<strong>${lyricLine}</strong>` : lyricLine;
+      if (inTextFill) {
+        htmlContent += `<div class="cpro_line"><div class="cpro_chords">${chordLine}</div><div class="cpro_lyrics"><span class="highlight">${processedLyrics}</span></div></div>`;
+      } else {
+        htmlContent += `<div class="cpro_line"><div class="cpro_chords">${chordLine}</div><div class="cpro_lyrics">${processedLyrics}</div></div>`;
+      }
+    }
+  });
+
+  document.getElementById('visor').innerHTML = htmlContent;
+}
 
 // Adiciona o evento ao BOTÃO RENDERIZAR
 document.getElementById('renderizar').addEventListener('click', renderVisor);
@@ -752,20 +640,27 @@ function transposeChord(chord, interval) {
 }
 
 function transposeSong() {
-    let songLyrics = document.getElementById('songLyrics').value;
-    let selectedKey = document.getElementById('key').value;
-    let songChords = songLyrics.match(/\[([^\]]+)\]/g); // Encontra acordes no formato [Acorde]
+  let songLyrics = document.getElementById('songLyrics').value;
+  let selectedKey = document.getElementById('key').value;
+  let songChords = songLyrics.match(/\[([^\]]+)\]/g);
 
-    if (!songChords) return; // Se não houver acordes, não faz nada
+  if (!songChords) return;
 
-    let currentKey = detectKey(songChords); // Detecta o tom atual da música
-    let interval = semitoneMap[selectedKey] - semitoneMap[currentKey];
+  let currentKey = detectKey(songChords);
+  let interval = semitoneMap[selectedKey] - semitoneMap[currentKey];
 
-    let transposedLyrics = songLyrics.replace(/\[([^\]]+)\]/g, function(_, chord) {
-        return `[${transposeChord(chord, interval)}]`;
-    });
+  // Salva a letra original e tom sem sufixos (ex: "Am" → "A")
+  textoOriginal = songLyrics;
+  tomSalvo = currentKey.match(/^([A-G][#b]?)/)?.[1] || "C";
 
-    document.getElementById('songLyrics').value = transposedLyrics;
+  let transposedLyrics = songLyrics.replace(/\[([^\]]+)\]/g, function(_, chord) {
+    return `[${transposeChord(chord, interval)}]`;
+  });
+
+  document.getElementById('songLyrics').value = transposedLyrics;
+  transposto = true;
+
+  renderVisor(); // atualiza visor com nova transposição
 }
 
 function detectKey(chords) {
@@ -777,93 +672,105 @@ function detectKey(chords) {
     return 'C'; // Tom padrão se não detectar
 }
 
+// restaurar o tom original
+
+function restaurarTomOriginal() {
+  if (textoOriginal && tomSalvo) {
+    document.getElementById('songLyrics').value = textoOriginal;
+
+    const keySelect = document.getElementById('key');
+    keySelect.value = tomSalvo;
+
+    transposto = false;
+    renderVisor();
+  } else {
+    alert("Nenhuma transposição foi realizada ainda.");
+  }
+}
+
+
+
 <!-- IMPORTAR ARQUIVO -->
 
 
-document.getElementById('importar').addEventListener('click', function() {
-    document.getElementById('importarArquivo').click();
+document.getElementById('importar').addEventListener('click', function () {
+  document.getElementById('importarArquivo').click();
 });
 
+document.getElementById('importarArquivo').addEventListener('change', function (event) {
+  const file = event.target.files[0];
 
-document.getElementById('importarArquivo').addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    
-if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const fileContent = e.target.result;
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const fileContent = e.target.result;
+      const lines = fileContent.split('\n');
+      let lyrics = "";
+      let importedKey = "C"; // Tom padrão
 
-            // Separar linhas do arquivo
-            const lines = fileContent.split('\n');
-            let lyrics = "";
+      lines.forEach(line => {
+        if (line.startsWith('{title:')) {
+          document.getElementById('songTitle').value = line.replace('{title:', '').replace('}', '').trim();
+        } else if (line.startsWith('{artist:')) {
+          document.getElementById('composer').value = line.replace('{artist:', '').replace('}', '').trim();
+        } else if (line.startsWith('{key:')) {
+          importedKey = line.replace('{key:', '').replace('}', '').trim();
+          document.getElementById('key').value = importedKey;
+        } else {
+          lyrics += line + '\n';
+        }
+      });
 
-            lines.forEach(line => {
-                if (line.startsWith('{title:')) {
-                    document.getElementById('songTitle').value = line.replace('{title:', '').replace('}', '').trim();
-                } else if (line.startsWith('{artist:')) {
-                    document.getElementById('composer').value = line.replace('{artist:', '').replace('}', '').trim();
-                } else if (line.startsWith('{key:')) {
-                    importedKey = line.replace('{key:', '').replace('}', '').trim(); // Define o tom original
-                    document.getElementById('key').value = importedKey;  // Preenche a chave no seletor de tom
-                } else {
-                    lyrics += line + '\n';
-                }
-            });
+      document.getElementById('songLyrics').value = lyrics.trim();
+      renderVisor(importedKey); // Passa o tom importado explicitamente
+    };
 
-            // Inserir a letra na textarea songLyrics
-           document.getElementById('songLyrics').value = lyrics.trim();
-            renderVisor(); // Chama a renderização após a importação, mas sem transpor
-        };
-        
-        reader.onerror = function() {
-            console.error('Selecione um arquivo válido'); // Caso ocorra algum erro ao ler o arquivo
-        };
+    reader.onerror = function () {
+      console.error('Erro ao ler o arquivo.');
+    };
 
-        reader.readAsText(file);
-    } else {
-        console.error('Nenhum arquivo foi selecionado.');
-    }
+    reader.readAsText(file);
+  } else {
+    console.error('Nenhum arquivo foi selecionado.');
+  }
 });
+
 
 // CONVERSÃO DE CHORDOVER PARA CHORDPRO 
 
-
 function chordPro() {
     const textArea = document.getElementById('songLyrics');
-    const lines = textArea.value.split('\n'); // Divide o conteúdo por linhas
-
+    const lines = textArea.value.split('\n');
     let chordProLyrics = '';
     let i = 0;
 
-    // Processa duas linhas de cada vez (acordes e letras)
     while (i < lines.length) {
-        const chordsLine = lines[i] ? lines[i] : ''; // Linha de acordes
-        const lyricsLine = lines[i + 1] ? lines[i + 1] : ''; // Linha de letras
-        let processedLine = '';
-        let lyricIndex = 0; // Para acompanhar a posição na linha de letras
+        const chordsLine = lines[i] ? lines[i] : '';
+        const lyricsLine = lines[i + 1] ? lines[i + 1] : '';
 
-        // Apenas se houver uma linha de acordes e uma linha de letras
-        if (chordsLine && lyricsLine) {
+        if (isChordLine(chordsLine) && lyricsLine) {
+            let processedLine = '';
+            let lyricIndex = 0;
+
             let chordPosition = 0;
 
-            // Percorre a linha de acordes caractere por caractere
             while (chordPosition < chordsLine.length) {
                 if (chordsLine[chordPosition] !== ' ') {
-                    // Detecta um acorde (até o próximo espaço)
                     let chord = '';
-                    let startChordPosition = chordPosition; // Salva a posição inicial do acorde
+                    let startChordPosition = chordPosition;
+
                     while (chordPosition < chordsLine.length && chordsLine[chordPosition] !== ' ') {
                         chord += chordsLine[chordPosition];
                         chordPosition++;
                     }
 
-                    // Posiciona o acorde antes da sílaba correspondente
+                    // Adiciona as letras da linha até o ponto de inserção
                     while (lyricIndex < lyricsLine.length && lyricIndex < startChordPosition) {
                         processedLine += lyricsLine[lyricIndex];
                         lyricIndex++;
                     }
 
-                    // Insere o acorde no local correspondente
+                    // Insere o acorde no ponto correto
                     processedLine += `[${chord}]`;
                 } else {
                     chordPosition++;
@@ -873,9 +780,11 @@ function chordPro() {
             // Adiciona o restante da linha de letras
             processedLine += lyricsLine.slice(lyricIndex);
             chordProLyrics += processedLine + '\n';
+            i += 2;
+        } else {
+            chordProLyrics += lines[i] + '\n';
+            i++;
         }
-
-        i += 2; // Processa o par de linhas (acorde + letra)
     }
 
     textArea.value = chordProLyrics.trim();
@@ -883,74 +792,78 @@ function chordPro() {
 
 
 
+// Validação da linha de acordes
+
+function isChordLine(line) {
+    // Conta acordes reconhecíveis em uma linha
+    const matches = line.match(/\b([A-G][#b]?((m|maj|min|sus|dim|aug)?\d*)?(\/[A-G][#b]?)?)\b/g);
+    if (!matches) return false;
+
+    const totalWords = line.trim().split(/\s+/).length;
+    const totalChords = matches.length;
+
+    // Considera linha de acordes se >70% dos "blocos" forem acordes
+    return totalChords / totalWords >= 0.7;
+}
+
+
+
 // CONVERSÃO DE COLAGEM EM CAIXA ALTA PRESERVANDO ACORDES
 
-document.getElementById('songLyrics').addEventListener('paste', function(event) {  
-   event.preventDefault();  // Impede o comportamento padrão do colar  
-  
-   // Obtém o texto do evento de colagem  
-   var pasteText = (event.clipboardData || window.clipboardData).getData('text');  
-  
-   // Verifica se o texto está no formato ChordPro  
-   if (pasteText.includes('[') && pasteText.includes(']')) {  
-      var convertedText = pasteText  
-        .replace(/(\[.*?\])|(\{.*?\})/g, function(match) {  
-           return match; // Mantém acordes entre colchetes e conteúdo entre chaves  
-        })  
-        .replace(/[^\[\]\{\}]+(?=\[|\{|$)/g, function(lyrics) {  
-           return lyrics.toUpperCase(); // Converte letras fora dos colchetes e chaves para maiúsculas  
-        });  
-   } else {  
-      // Função para separar linhas de acordes e letras  
-      var lines = pasteText.split('\n');  
-      var convertedText = lines.map(function(line) {  
-        // Verifica se a linha é de acordes ou letras  
-        if (line.match(/\b([A-G][#b]?(m|dim|aug|sus|add|maj)?\d*(\/[A-G][#b]?)?)\b/g)) {  
-           return line;  // Preserva a linha de acordes  
-        } else {  
-           return line.toUpperCase();  // Converte as letras para maiúsculas  
-        }  
-      }).join('\n');  
-   }  
-  
-   // Insere o texto convertido na posição atual do cursor  
-   var cursorPos = this.selectionStart;  
-   var textBefore = this.value.substring(0, cursorPos);  
-   var textAfter = this.value.substring(cursorPos);  
-   this.value = textBefore + convertedText + textAfter;  
-  
-   // Ajusta a posição do cursor  
-   this.setSelectionRange(cursorPos + convertedText.length, cursorPos + convertedText.length);  
+document.getElementById('songLyrics').addEventListener('paste', function (event) {
+    event.preventDefault();
+
+    const pasteText = (event.clipboardData || window.clipboardData).getData('text');
+
+    // Quebra em linhas
+    const lines = pasteText.split('\n');
+
+    const convertedLines = lines.map(line => {
+        // Linha de acordes: mais de 70% dos tokens são acordes
+        const matches = line.match(/\b([A-G][#b]?(m|maj|min|dim|aug|sus)?\d*(\/[A-G][#b]?)?)\b/g);
+        const tokens = line.trim().split(/\s+/);
+        const ratio = matches && tokens.length ? matches.length / tokens.length : 0;
+
+        const isChordLine = ratio >= 0.7;
+
+        return isChordLine ? line : line.toUpperCase();
+    });
+
+    const convertedText = convertedLines.join('\n');
+
+    // Insere no ponto atual do cursor
+    const cursorPos = this.selectionStart;
+    const textBefore = this.value.substring(0, cursorPos);
+    const textAfter = this.value.substring(cursorPos);
+    this.value = textBefore + convertedText + textAfter;
+
+    // Reposiciona o cursor após inserção
+    this.setSelectionRange(cursorPos + convertedText.length, cursorPos + convertedText.length);
 });
+
   
 // FUNÇÃO PARA CONVERSÃO DE CHORDPRO E CHORDOVER EM CAIXA ALTA
 
-document.getElementById('convertCaixaAlta').addEventListener('click', function() {  
-   var text = document.getElementById('songLyrics').value;  
-  
-   // Verifica se o texto está no formato ChordPro  
-   if (text.includes('[') && text.includes(']')) {  
-      var convertedText = text  
-        .replace(/(\[.*?\])|(\{.*?\})/g, function(match) {  
-           return match; // Mantém acordes entre colchetes e conteúdo entre chaves  
-        })  
-        .replace(/[^\[\]\{\}]+(?=\[|\{|$)/g, function(lyrics) {  
-           return lyrics.toUpperCase(); // Converte letras fora dos colchetes e chaves para maiúsculas  
-        });  
-   } else {  
-      // Função para separar linhas de acordes e letras  
-      var lines = text.split('\n');  
-      var convertedText = lines.map(function(line) {  
-        // Verifica se a linha é de acordes ou letras  
-        if (line.match(/\b([A-G][#b]?(m|dim|aug|sus|add|maj)?\d*(\/[A-G][#b]?)?)\b/g)) {  
-           return line;  // Preserva a linha de acordes  
-        } else {  
-           return line.toUpperCase();  // Converte as letras para maiúsculas  
-        }  
-      }).join('\n');  
-   }  
-  
-   document.getElementById('songLyrics').value = convertedText;  
+document.getElementById('convertCaixaAlta').addEventListener('click', function () {
+    const textArea = document.getElementById('songLyrics');
+    const originalText = textArea.value;
+
+    // Expressão que divide a cifra em blocos: acordes, comandos e letras
+    const tokens = originalText.match(/(\[.*?\]|\{.*?\}|[^\[\]\{\}]+)/g);
+
+    if (!tokens) return;
+
+    const result = tokens.map(token => {
+        if (token.startsWith('[') && token.endsWith(']')) {
+            return token; // acorde, mantém
+        }
+        if (token.startsWith('{') && token.endsWith('}')) {
+            return token; // comando ChordPro, mantém
+        }
+        return token.toUpperCase(); // letra comum → caixa alta
+    });
+
+    textArea.value = result.join('');
 });
 
 
@@ -973,44 +886,100 @@ B: ['B', 'B7', 'B7+', 'B°', 'Bb', 'Bb7', 'Bb7+', 'Bb°', 'B5', 'B5+', 'B6', 'B6
 
         };
 
-        const textarea = document.getElementById('songLyrics');
-        const chordlist = document.getElementById('chordlist');
-        const usedChordsList = document.getElementById('used-chords-list');  
-        const usedChordsArray = [];
-  
-// Monitora a combinação de Shift + Letra no textarea  
-textarea.addEventListener('keydown', function(e) {  
-   if (e.shiftKey && /^[CDEFGABcdefgab]$/.test(e.key)) { // Detecta Shift + Letra  
-      const ton = e.key.toUpperCase(); // Converte a tonalidade para maiúscula  
-      const acordeList = acordes[ton] || []; 
-  
-      // Limpa e popula o chordlist  
-      chordlist.innerHTML = '';  
-      acordeList.forEach(acorde => {  
-        const button = document.createElement('button');  
-        button.textContent = acorde;  
-        button.addEventListener('click', function() {  
-           inserirAcorde(acorde, textarea.selectionStart);  
-           addUsedChord(acorde);  
-        });  
-        chordlist.appendChild(button);  
-      });  
-  
-      // Impede que a tecla digitada apareça no textarea  
-      e.preventDefault();  
-  
-      // Pega a posição do cursor e ajusta o chordlist  
-      const rect = textarea.getBoundingClientRect();  
-      const lineHeight = 20; // Ajuste manual da altura da linha  
-      const position = textarea.value.slice(0, textarea.selectionStart).split("\n").length;  
-  
-      chordlist.style.top = `${rect.top + window.scrollY + (position * lineHeight)}px`;  
-      chordlist.style.left = `${rect.left + window.scrollX}px`;  
-      chordlist.style.display = 'block';  
-   } else {  
-      chordlist.style.display = 'none';  
-   }  
-});  
+const textarea = document.getElementById('songLyrics');
+const chordlist = document.getElementById('chordlist');
+const usedChordsList = document.getElementById('used-chords-list');  
+const usedChordsArray = [];
+
+textarea.addEventListener('keydown', function(e) {
+  if (e.shiftKey && /^[CDEFGABcdefgab]$/.test(e.key)) {
+    const ton = e.key.toUpperCase();
+    const acordeList = acordes[ton] || [];
+
+    chordlist.innerHTML = '';
+    acordeList.forEach(acorde => {
+      const button = document.createElement('button');
+      button.textContent = acorde;
+      button.addEventListener('click', function () {
+        inserirAcorde(acorde, textarea.selectionStart);
+        addUsedChord(acorde);
+      });
+      chordlist.appendChild(button);
+    });
+
+    e.preventDefault();
+
+    // === Torna o modal visível temporariamente para medir ===
+    chordlist.style.visibility = 'hidden';
+    chordlist.style.display = 'block';
+    chordlist.style.top = '-9999px';
+    chordlist.style.left = '-9999px';
+
+const coords = getCaretCoordinates(textarea, textarea.selectionStart);
+
+const modalWidth = chordlist.offsetWidth || 180;
+const modalHeight = chordlist.offsetHeight || 160;
+
+const offsetRight = 15;
+const offsetVertical = -modalHeight / 2;
+
+const top = coords.top + offsetVertical;
+const left = coords.left + offsetRight;
+
+chordlist.style.position = "absolute";
+chordlist.style.top = `${top}px`;
+chordlist.style.left = `${left}px`;
+chordlist.style.display = "block";
+chordlist.style.visibility = "visible";
+  } else {
+    chordlist.style.display = 'none';
+  }
+});
+
+
+function getCaretCoordinates(element, position) {
+  const div = document.createElement("div");
+  const style = getComputedStyle(element);
+  const properties = [
+    'direction', 'boxSizing', 'width', 'height', 'overflowX', 'overflowY',
+    'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth',
+    'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
+    'fontStyle', 'fontVariant', 'fontWeight', 'fontStretch', 'fontSize',
+    'fontSizeAdjust', 'lineHeight', 'fontFamily', 'textAlign', 'textTransform',
+    'textIndent', 'textDecoration', 'letterSpacing', 'wordSpacing', 'tabSize',
+    'MozTabSize'
+  ];
+
+  div.id = "caret-position-mirror-div";
+  document.body.appendChild(div);
+
+  const divStyle = div.style;
+  divStyle.whiteSpace = "pre-wrap";
+  divStyle.position = "absolute";
+  divStyle.visibility = "hidden";
+
+  properties.forEach(prop => {
+    divStyle[prop] = style[prop];
+  });
+
+  const text = element.value.substring(0, position);
+  const span = document.createElement("span");
+  span.textContent = element.value.substring(position) || ".";
+
+  div.textContent = text;
+  div.appendChild(span);
+
+  const rect = element.getBoundingClientRect();
+  const coordinates = {
+    top: rect.top + span.offsetTop - element.scrollTop + window.scrollY,
+    left: rect.left + span.offsetLeft - element.scrollLeft + window.scrollX
+  };
+
+  document.body.removeChild(div);
+  return coordinates;
+}
+
+
   
 // Função para adicionar um acorde à lista de acordes usados  
 function addUsedChord(chord) {  
@@ -1084,18 +1053,42 @@ clearButton.addEventListener('click', limparAcordesUsados);
 
 function exportChordPro() {
     const content = document.getElementById("songLyrics").value;
-    const title = document.getElementById("songTitle").value || "Título Desconhecido";
-    const composer = document.getElementById("composer").value || "Compositor Desconhecido";
-    const key = document.getElementById("key").value || "C";
+    const title = document.getElementById("songTitle").value.trim();
+    const composer = document.getElementById("composer").value.trim();
+    const key = document.getElementById("key").value;
+
+    // Verificações obrigatórias
+    if (!title) {
+        alert("Digite o título da música antes de exportar.");
+        return;
+    }
+
+    if (!composer) {
+        alert("Digite o nome do compositor antes de exportar.");
+        return;
+    }
+
+    if (!key || key === "-") {
+        alert("Selecione a tonalidade (tom) antes de exportar.");
+        return;
+    }
+
+    if (!content.trim()) {
+        alert("Digite a cifra antes de exportar.");
+        return;
+    }
 
     // Monta o conteúdo do arquivo CHORDPRO
     const chordProContent = `{title: ${title}}\n{artist: ${composer}}\n{key: ${key}}\n\n${content}`;
-    
+
+    // Nome seguro para o arquivo
+    const safeTitle = title.replace(/[\\/:*?"<>|]/g, "_");
+
     // Gera o arquivo e faz o download
     const blob = new Blob([chordProContent], { type: "text/plain;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `${title}.cho`;
+    link.download = `${safeTitle}.cho`;
     link.click();
 }
 
