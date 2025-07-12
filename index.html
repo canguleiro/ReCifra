@@ -41,7 +41,7 @@ h1 {
         background-color: #333;
         color: #fff;
         border-radius: 5px;
-        padding: 5px 10px 5px 10px;
+        padding: 3px 10px 3px 10px;
 }
 
 /* Estilos para campos de texto e inputs */
@@ -175,29 +175,48 @@ p {
             display: none;
             position: absolute;
             width: 600px;
-            border: 0px solid #ccc;
+            border: 2px solid #000000;
             border-radius: 5px; /* Bordas arredondadas */
             background-color: #f7f7f7;
             z-index: 100;
             padding: 10px; /* Espaçamento interno */
         }
 
-        #chordlist button {
-            display: inline-block; /* Permite que os itens sejam exibidos lado a lado */
-            width: 70px; /* Largura */
-            padding: 6px; /* Espaçamento interno */
-            margin: 2px;
-            background-color: #fcfcfc; /* Cor de fundo */
-            box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            z-index: 1000; /* Garante que o dropdown fique sobre outros elementos */
-            font-weight: semibold;
-            border: 0px solid #f4f4f4;/* Borda */
-            font-family: monospace;
-            border-radius: 5px; /* Bordas arredondadas */
-            cursor: pointer;
-            
-        }
+#chordlist button {
+    display: inline-block;
+    width: 70px;
+    padding: 6px;
+    margin: 2px;
+    background-color: #fcfcfc;
+    box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    z-index: 1000;
+    font-weight: semibold;
+    border: 0px solid #f4f4f4;
+    font-family: monospace;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* 🎨 Estilo para botões das colunas 1 a 4 (naturais) */
+.natural-chord {
+    background-color: #fcfcfc !important;
+    border: 1px solid #e6e6e6 !important;}
+
+.natural-chord:hover {
+    background-color: #e6e6e6 !important;  /* Azul médio no hover */
+}
+
+/* 🎨 Estilo para botões das colunas 5 a 8 (sustenidos/bemóis) */
+.altered-chord {
+    background-color: #e6e6e6 !important;
+    border: 1px solid #fcfcfc !important;
+}
+
+.altered-chord:hover {
+    background-color: #fcfcfc !important;  /* Amarelo médio no hover */
+}
+
 
 #chordlist option {
     display: inline; /* Exibe as opções em linha */
@@ -639,37 +658,48 @@ function transposeChord(chord, interval) {
     return transposedChord + suffix; // Preserva o sufixo e transpoe a base
 }
 
-function transposeSong() {
-  let songLyrics = document.getElementById('songLyrics').value;
-  let selectedKey = document.getElementById('key').value;
-  let songChords = songLyrics.match(/\[([^\]]+)\]/g);
+// transpor música
 
+function transposeSong() {
+  const textarea = document.getElementById('songLyrics');
+  const selectedKey = document.getElementById('key').value;
+  
+  let songLyrics = textoOriginal || textarea.value;
+  let songChords = songLyrics.match(/\[([^\]]+)\]/g);
   if (!songChords) return;
 
   let currentKey = detectKey(songChords);
   let interval = semitoneMap[selectedKey] - semitoneMap[currentKey];
 
-  // Salva a letra original e tom sem sufixos (ex: "Am" → "A")
-  textoOriginal = songLyrics;
-  tomSalvo = currentKey.match(/^([A-G][#b]?)/)?.[1] || "C";
+  // Salva a versão original apenas uma vez
+  if (!transposto) {
+    textoOriginal = songLyrics;
+    tomSalvo = currentKey.match(/^([A-G][#b]?)/)?.[1] || "C";
+    transposto = true;
+  }
 
   let transposedLyrics = songLyrics.replace(/\[([^\]]+)\]/g, function(_, chord) {
     return `[${transposeChord(chord, interval)}]`;
   });
 
-  document.getElementById('songLyrics').value = transposedLyrics;
-  transposto = true;
-
-  renderVisor(); // atualiza visor com nova transposição
+  textarea.value = transposedLyrics;
+  renderVisor();
 }
 
+// detectar acorde inicial
+
 function detectKey(chords) {
-    for (let chord of chords) {
-        let cleanChord = chord.replace(/[\[\]]/g, ''); // Remove colchetes
-        let baseChord = cleanChord.match(/^([A-G][#b]?)/); // Captura a base do acorde
-        if (baseChord && semitoneMap[baseChord[0]]) return baseChord[0]; // Retorna o primeiro acorde detectado
+  for (let chord of chords) {
+    let cleanChord = chord.replace(/[\[\]]/g, '');
+    let match = cleanChord.match(/^([A-G][#b]?)(m)?/);
+    if (match) {
+      const base = match[1] + (match[2] || '');
+      if (semitoneMap.hasOwnProperty(base)) {
+        return base;
+      }
     }
-    return 'C'; // Tom padrão se não detectar
+  }
+  return 'C'; // fallback
 }
 
 // restaurar o tom original
@@ -687,7 +717,6 @@ function restaurarTomOriginal() {
     alert("Nenhuma transposição foi realizada ainda.");
   }
 }
-
 
 
 <!-- IMPORTAR ARQUIVO -->
@@ -897,15 +926,26 @@ textarea.addEventListener('keydown', function(e) {
     const acordeList = acordes[ton] || [];
 
     chordlist.innerHTML = '';
-    acordeList.forEach(acorde => {
-      const button = document.createElement('button');
-      button.textContent = acorde;
-      button.addEventListener('click', function () {
+acordeList.forEach((acorde, index) => {
+    const button = document.createElement('button');
+    button.textContent = acorde;
+
+    const colunasPorLinha = 8;
+    const coluna = index % colunasPorLinha;
+
+    if (coluna < 4) {
+        button.classList.add('natural-chord');  // colunas 0,1,2,3
+    } else {
+        button.classList.add('altered-chord');  // colunas 4,5,6,7
+    }
+
+    button.addEventListener('click', function () {
         inserirAcorde(acorde, textarea.selectionStart);
         addUsedChord(acorde);
-      });
-      chordlist.appendChild(button);
     });
+
+    chordlist.appendChild(button);
+});
 
     e.preventDefault();
 
