@@ -397,7 +397,9 @@ p {
 #limparCifra,
 #novoArquivo,
 #limparAcordesUsados,
-#restaurarTomOriginal {
+#restaurarTomOriginal,
+#desfazer,
+#refazer {
   display: relative;
   background-color: #333;
   color: #fff;
@@ -507,14 +509,15 @@ p {
         
           <!-- Botões de comandos -->
             
-            <button id="novoArquivo" onclick="refreshPagina()" title="Novo arquivo em branco">NOVO ARQUIVO</button>
+            <button id="novoArquivo" onclick="refreshPagina()" title="Novo arquivo em branco">NOVO</button>
             <button id="importar" title="Importar arquivos no formato .cho ou .txt">IMPORTAR</button>
             <input type="file" id="importarArquivo" accept=".cho, .txt" style="display: none;">
             <button id="exportar" onclick="exportChordPro()" title="Exportar arquivo no formato .cho">EXPORTAR</button>
             <button id="limparCifra" onclick="limparCifra()" title="Limpa as cifras ChordPro da Área de Texto e mantém a letra da música">LIMPAR CIFRA</button>
             <button id="limparAcordesUsados" onclick="limparAcordesUsados()" title="Limpa a lista de acordes usados na Área de Atalho">LIMPAR ACORDES</button>
             <button id="restaurarTomOriginal" onclick="restaurarTomOriginal()" title="Restaura a tonalidade original">RESTAURAR TOM</button>
-
+<button id="desfazer" onclick="desfazer()" title="Desfazer última ação">&lt;&lt;</button>
+<button id="refazer" onclick="refazer()" title="Refazer ação desfeita">&gt;&gt;</button>
               
         </div>
 
@@ -537,6 +540,10 @@ let importedKey = null;
 let textoOriginal = ''; // Salva a versão original sem alterações
 let tomSalvo = '';       // Salva o tom original definido
 let transposto = false;  // Flag para saber se houve transposição
+
+let undoStack = [];
+let redoStack = [];
+let currentText = '';
 
 
 // FUNÇÃO RENDERIZAR VISOR
@@ -774,6 +781,7 @@ document.getElementById('importarArquivo').addEventListener('change', function (
 
       document.getElementById('songLyrics').value = lyrics.trim();
       renderVisor(importedKey); // Passa o tom importado explicitamente
+      salvarEstado();
     };
 
     reader.onerror = function () {
@@ -839,6 +847,7 @@ function chordPro() {
     }
 
     textArea.value = chordProLyrics.trim();
+    salvarEstado();
 }
 
 
@@ -915,6 +924,7 @@ document.getElementById('convertCaixaAlta').addEventListener('click', function (
     });
 
     textArea.value = result.join('');
+    salvarEstado();
 });
 
 
@@ -1042,7 +1052,6 @@ function getCaretCoordinates(element, position) {
 }
 
 
-  
 // Função para adicionar um acorde à lista de acordes usados  
 function addUsedChord(chord) {  
    if (!usedChordsArray.includes(chord)) {  
@@ -1089,7 +1098,8 @@ function inserirAcorde(acorde, cursorPos) {
    textarea.value = before + `[${acorde}]` + after; // Insere o acorde  
    textarea.selectionStart = cursorPos + acorde.length + 2; // Ajusta a posição do cursor após o acorde  
    textarea.selectionEnd = textarea.selectionStart; // Garante que o cursor fique na posição correta  
-   chordlist.style.display = 'none';  
+   chordlist.style.display = 'none';
+   salvarEstado();  
 }  
   
 // Adicionar evento de click ao documento para ocultar a lista de acordes  
@@ -1180,6 +1190,7 @@ function inserirRefrao() {
     
     // Atualiza o valor no textarea
     textarea.value = novoTexto;
+    salvarEstado();
 }
 
 /* DEFINIR CÔRO */
@@ -1200,6 +1211,7 @@ function inserirCoro() {
     
     // Atualiza o valor no textarea
     textarea.value = novoTexto;
+    salvarEstado();
 }
 
 /* INSERIR TAG BIS */
@@ -1220,6 +1232,7 @@ function inserirBis() {
   
   // Dá o foco de volta ao textarea
   textarea.focus();
+salvarEstado();
 }
 
 /* INSERIR TAG REFRÃO */
@@ -1240,6 +1253,7 @@ function inserirtagRefrao() {
   
   // Dá o foco de volta ao textarea
   textarea.focus();
+salvarEstado();
 }
 
 /* INSERIR TAG TRANSIÇÃO */
@@ -1260,6 +1274,7 @@ function inserirtagTransicao() {
   
   // Dá o foco de volta ao textarea
   textarea.focus();
+salvarEstado();
 }
 
 /* INSERIR TAG OBSERVAÇÃO */
@@ -1280,6 +1295,7 @@ function inserirtagObs() {
   
   // Dá o foco de volta ao textarea
   textarea.focus();
+salvarEstado();
 }
 
 /* LIMPAR CIFRA NA TEXTAREA */
@@ -1287,6 +1303,7 @@ function inserirtagObs() {
 function limparCifra() {
     const textarea = document.getElementById('songLyrics');
     textarea.value = textarea.value.replace(/\[.*?\]/g, '');
+    salvarEstado();
 }
 
 /* FUNÇÃO REFRESH PÁGINA - BOTÃO LIMPAR TUDO*/
@@ -1294,6 +1311,52 @@ function limparCifra() {
 function refreshPagina() {
     location.reload();
 }
+
+
+/* FUNÇÕES DESFAZER E REFAZER*/
+
+function salvarEstado() {
+  const textarea = document.getElementById('songLyrics');
+  const textoAtual = textarea.value;
+  if (textoAtual !== currentText) {
+    undoStack.push(currentText);
+    currentText = textoAtual;
+    redoStack = []; // limpa o histórico de "refazer"
+  }
+}
+
+function desfazer() {
+  const textarea = document.getElementById('songLyrics');
+  if (undoStack.length > 0) {
+    redoStack.push(currentText);
+    currentText = undoStack.pop();
+    textarea.value = currentText;
+    renderVisor(); // atualiza visualização
+  }
+}
+
+function refazer() {
+  const textarea = document.getElementById('songLyrics');
+  if (redoStack.length > 0) {
+    undoStack.push(currentText);
+    currentText = redoStack.pop();
+    textarea.value = currentText;
+    renderVisor();
+  }
+}
+
+/* Atalhos de teclado */
+
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.key === 'z') {
+    e.preventDefault();
+    desfazer();
+  }
+  if (e.ctrlKey && e.key === 'y') {
+    e.preventDefault();
+    refazer();
+  }
+});
 
 
     </script>
