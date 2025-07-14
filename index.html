@@ -929,28 +929,47 @@ document.getElementById('songLyrics').addEventListener('paste', function (event)
   
 // FUNÇÃO PARA CONVERSÃO DE CHORDPRO E CHORDOVER EM CAIXA ALTA
 
-document.getElementById('convertCaixaAlta').addEventListener('click', function () {
-    const textArea = document.getElementById('songLyrics');
-    const originalText = textArea.value;
+function convertCaixaAlta() {
+  const textArea = document.getElementById('songLyrics');
+  const originalText = textArea.value;
 
-    // Expressão que divide a cifra em blocos: acordes, comandos e letras
+  // Tenta detectar se está no formato ChordPro ou ChordOver
+  const isLikelyChordPro = originalText.includes('[') && originalText.includes(']');
+
+  if (isLikelyChordPro) {
+    // === MODO CHORDPRO ===
+    // Divide a cifra em blocos: acordes, comandos e letras
     const tokens = originalText.match(/(\[.*?\]|\{.*?\}|[^\[\]\{\}]+)/g);
 
     if (!tokens) return;
 
     const result = tokens.map(token => {
-        if (token.startsWith('[') && token.endsWith(']')) {
-            return token; // acorde, mantém
-        }
-        if (token.startsWith('{') && token.endsWith('}')) {
-            return token; // comando ChordPro, mantém
-        }
-        return token.toUpperCase(); // letra comum → caixa alta
+      if (token.startsWith('[') && token.endsWith(']')) {
+        return token; // acorde, mantém
+      }
+      if (token.startsWith('{') && token.endsWith('}')) {
+        return token; // comando ChordPro, mantém
+      }
+      return token.toUpperCase(); // texto comum → caixa alta
     });
 
     textArea.value = result.join('');
-    salvarEstado();
-});
+  } else {
+    // === MODO CHORD OVER ===
+    const lines = originalText.split('\n');
+    const processedLines = lines.map(line => {
+      const matches = line.match(/\b([A-G][#b]?(m|maj|min|dim|aug|sus)?\d*(\/[A-G][#b]?)?)\b/g);
+      const tokens = line.trim().split(/\s+/);
+      const ratio = matches && tokens.length ? matches.length / tokens.length : 0;
+      const isChordLine = ratio >= 0.7;
+      return isChordLine ? line : line.toUpperCase();
+    });
+
+    textArea.value = processedLines.join('\n');
+  }
+
+  salvarEstado();
+}
 
 
 // FUNÇÃO LISTA DE ACORDES
