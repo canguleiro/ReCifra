@@ -81,11 +81,11 @@ h1 {
         }
 
 
-/* Estilo para Área de Visualização */
+/* Estilo para Painel de Visualização */
 
-
+/* Título da Área*/
 .Visu {
-        font-size: 17px;
+        font-size: 20px;
         font-weight: bold;
         background-color: #F7F7F7;
         color: #333;
@@ -94,7 +94,7 @@ h1 {
        
 }
 
-
+/* Área de Texto */
 .visor {
     white-space: pre-wrap; /* Preserva espaços e quebras de linha */
     background-color: #f7f7f7;
@@ -114,7 +114,8 @@ h1 {
 .cpro_line {
     display: flex;
     flex-direction: column;
-    margin-bottom: 2px;  /* Ajusta o espaçamento entre linhas */
+    line-height: 1;
+    margin-bottom: -30px;  /* Ajusta o espaçamento entre linhas */
 }
 
 .cpro_chords {
@@ -129,15 +130,29 @@ h1 {
     white-space: pre;  /* Preserva o espaçamento exato */
 }
 
-.refrain {
-    font-weight: bold; /* Negrito */
-    color: #000000; /* Cor */
-    
-    font-size: 13px; /* Aumentar o tamanho da fonte */
-    text-transform: uppercase; /* Caixa alta */
-    margin-top: 20px; /* Espaço acima */
-    display: block; /* Exibir como um bloco */
+.section-label {
+  display: block;
+  text-align: center;
+  background-color: #e6e6e6;
+  color: #000;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  width: fit-content;
+  margin-left: 2px;
+  margin-right: auto;
+  margin-top: 35px;  /* mais compacto */
+  margin-bottom: -10px; /* menor espaço entre blocos */
 }
+
+.section-label.refrao    { background-color: #00ffff; }
+.section-label.coro      { background-color: #ffff00; }
+.section-label.bis       { background-color: #00ff00; }
+.section-label.transicao { background-color: #ffab44; }
+.section-label.observacao       { background-color: #ff9999; }
+
 
 .highlight {
     background-color: yellow;
@@ -158,7 +173,7 @@ p {
     font-size: 12px;
     margin-top: 1px;
     color: #555;
-    margin-bottom: 15px;
+    margin-bottom: -10px;
 }
 
 /* Estiliza a tonalidade (key) */
@@ -527,35 +542,30 @@ let transposto = false;  // Flag para saber se houve transposição
 // FUNÇÃO RENDERIZAR VISOR
  
 function renderVisor(keyParam) {
-  const songTitle = document.getElementById('songTitle').value;
+  const title = document.getElementById('songTitle').value;
   const composer = document.getElementById('composer').value;
-
-  // Corrigido: garante que o tom será lido corretamente, mesmo se o seletor ainda não estiver pronto
   const key = keyParam ?? (document.getElementById('key')?.value || 'C');
-
   const lyrics = document.getElementById('songLyrics').value;
-  let lines = lyrics.split('\n');
+  const lines = lyrics.split('\n');
 
-  let htmlContent = `<h3>${songTitle} (${key})</h3><p>${composer}</p>`;
+  let htmlContent = `<h3>${title} (${key})</h3><p>${composer}</p>`;
 
   let inTextFill = false;
   let inChorus = false;
-  let foundBIS = false;
-  let foundREFRÃO = false;
-  let foundTRANSIÇÃO = false;
-  let foundOBSERVAÇÃO = false;
 
-  lines.forEach(line => {
-    if (line.includes('{C:Chorus}')) {
-      htmlContent += `<br><span style='background-color: #e6e6e6; font-weight: bold;'><---- REFRÃO ----></span><br><br>`;
-      line = line.replace(/{C:Chorus}/g, '').replace(/\s*{C:}/g, '<span style="margin-bottom: 1px;"></span>');
-      inChorus = true;
-    } else if (line.includes('{C:}')) {
-      line = line.replace(/\s*{C:}/g, '<span style="margin-bottom: 1px;"></span>');
+  lines.forEach(originalLine => {
+if (originalLine.includes('{C:Chorus}')) {
+  htmlContent += `<div class="section-label refrao">← REFRÃO →</div>`;
+  inChorus = true;
+  return;
+}
+
+    if (originalLine.includes('{C:}')) {
       inChorus = false;
+      return;
     }
 
-    // Marcações de cores
+    // Marcações de cor
     const colorMap = {
       '{textfill: yellow}': 'yellow',
       '{textfill: #00ff00}': '#00ff00',
@@ -564,69 +574,81 @@ function renderVisor(keyParam) {
       '{textfill: #ff9999}': '#ff9999'
     };
 
-    for (let tag in colorMap) {
-      if (line.includes(tag)) {
+    for (const tag in colorMap) {
+      if (originalLine.includes(tag)) {
         inTextFill = true;
-        line = line.replace(new RegExp(tag, 'g'), '');
+        originalLine = originalLine.replace(new RegExp(tag, 'g'), '');
       }
     }
 
-    if (line.includes('{textfill}')) {
-      line = line.replace(/{textfill}/g, '');
+    if (originalLine.includes('{textfill}')) {
+      originalLine = originalLine.replace(/{textfill}/g, '');
       inTextFill = false;
     }
 
     // Destaques automáticos
     const highlights = {
+      'CÔRO': 'yellow',
       'BIS': '#00ff00',
       'REFRÃO': '#00ffff',
       'TRANSIÇÃO': '#ffab44',
       'OBSERVAÇÃO': '#ff9999'
     };
 
-    const trimmed = line.trim();
-    if (inTextFill && highlights[trimmed]) {
-      htmlContent += `<span class="highlight" style="background-color: ${highlights[trimmed]};">${trimmed}</span><br>`;
-      return;
-    }
+    const trimmed = originalLine.trim();
+if (inTextFill && highlights[trimmed]) {
+  const tipo = trimmed.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  htmlContent += `<div class="section-label ${tipo}">${trimmed}</div>`;
+  return;
+}
 
-    // Renderização de acordes
-    let chordLine = '';
-    let lyricLine = '';
-    let isChord = false;
-    let chordBuffer = '';
-    let chordOffset = 0;
+    // Chord over lyrics
+    let lyricsLine = '';
+    let chordsLine = '';
+    let i = 0;
+    let displayPos = 0;
 
-    for (let i = 0; i < line.length; i++) {
-      let char = line[i];
+    while (i < originalLine.length) {
+      if (originalLine[i] === '[') {
+        let end = originalLine.indexOf(']', i);
+        if (end !== -1) {
+          const chord = originalLine.substring(i + 1, end);
 
-      if (char === '[') {
-        isChord = true;
-        chordBuffer = '';
-      } else if (char === ']') {
-        isChord = false;
-        chordLine += `<span class="chord">${chordBuffer}</span>`;
-        chordOffset += chordBuffer.length;
-      } else if (isChord) {
-        chordBuffer += char;
+          // Preenche espaços até a posição atual de exibição
+          while (chordsLine.length < displayPos) {
+            chordsLine += ' ';
+          }
+
+          chordsLine += chord;
+
+          i = end + 1;
+        } else {
+          lyricsLine += originalLine[i];
+          displayPos++;
+          i++;
+        }
       } else {
-        lyricLine += char;
-        chordLine += (chordOffset-- > 0) ? '' : '&nbsp;';
+        lyricsLine += originalLine[i];
+        displayPos++;
+        i++;
       }
     }
 
-    if (lyricLine.trim() !== '' || chordLine.trim() !== '') {
-      let processedLyrics = inChorus ? `<strong>${lyricLine}</strong>` : lyricLine;
-      if (inTextFill) {
-        htmlContent += `<div class="cpro_line"><div class="cpro_chords">${chordLine}</div><div class="cpro_lyrics"><span class="highlight">${processedLyrics}</span></div></div>`;
-      } else {
-        htmlContent += `<div class="cpro_line"><div class="cpro_chords">${chordLine}</div><div class="cpro_lyrics">${processedLyrics}</div></div>`;
-      }
-    }
+    const styledLyrics = inChorus ? `<strong>${lyricsLine}</strong>` : lyricsLine;
+    const lyricsWrapped = inTextFill
+      ? `<div class="cpro_lyrics"><span class="highlight">${styledLyrics}</span></div>`
+      : `<div class="cpro_lyrics">${styledLyrics}</div>`;
+
+    htmlContent += `
+      <div class="cpro_line">
+        <div class="cpro_chords">${chordsLine}</div>
+        ${lyricsWrapped}
+      </div>`;
   });
 
   document.getElementById('visor').innerHTML = htmlContent;
 }
+
 
 // Adiciona o evento ao BOTÃO RENDERIZAR
 document.getElementById('renderizar').addEventListener('click', renderVisor);
