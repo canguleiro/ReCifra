@@ -53,39 +53,57 @@ h1 {
         }
 
 /* Estilo específico para o campo de letras da música */
-        textarea {
-            width: 100%;
-            height: 400px;
-            font-family: monospace;
-            resize: none; /* Impede o redimensionamento manual */
-            overflow-x: hidden; /* Desativa barra horizontal */
-                 
-        }
+textarea {
+  width: 100%;
+  height: 400px;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 10px;
+  resize: none;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
 
 /* Estilo do cabeçalho (inputs de título e compositor) */
 
-.header input {
-            width: calc(42% - 10px);
-            padding: 5px;
-            margin-bottom: 10px;
-            font-size: 12px;
-        }
+.header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
 
-/* Estilo da Caixa Seletora de Tom */
+.header input,
+#key {
+  padding: 6px;
+  height: 30px;
+  font-size: 12px;
+  font-family: monospace;
+  box-sizing: border-box;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Proporções individuais */
+.header input {
+  flex: 4; /* Título e Compositor */
+}
 
 #key {
-            width: calc(15% - 10px); * Largura do menu */
-            font-size: 14px;
-            font-family: monospace;
-            min-height: 27px;
-        }
-
+  flex: 1; /* Tom */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
 
 /* Estilo para Painel de Visualização */
 
 /* Título da Área*/
 .Visu {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: bold;
         background-color: #F7F7F7;
         color: #333;
@@ -102,6 +120,7 @@ h1 {
     height: 470px;
     padding: 10px;
     border: 0px solid #ccc;
+    border-radius: 4px;
     margin-top: 30px;
     margin-bottom: 10px;  
     font-size: 14px;
@@ -286,7 +305,7 @@ p {
     border: 1px solid #E6E6E6;
     font-family: monospace;
     border-radius: 5px;
-    padding: 7px;
+    padding: 6px;
     margin: 0px 1px 0px 1px;
     cursor: pointer;
  }
@@ -299,7 +318,7 @@ p {
     border: 0px solid #E6E6E6;
     font-family: monospace;
     border-radius: 5px;
-    padding: 7px;
+    padding: 6px;
     margin: 0px 1px 0px 1px;
     cursor: pointer;
  }
@@ -314,7 +333,7 @@ p {
     border: 0px;
     font-family: monospace;
     border-radius: 5px;
-    padding: 7px;
+    padding: 6px;
     cursor: pointer;
                
   }
@@ -329,7 +348,7 @@ p {
     border: 0px;
     font-family: monospace;
     border-radius: 5px;
-    padding: 7px;
+    padding: 6px;
     cursor: pointer;
 
   }
@@ -343,7 +362,7 @@ p {
     border: 0px;
     font-family: monospace;
     border-radius: 5px;
-    padding: 7px;
+    padding: 6px;
     cursor: pointer;
 
   }
@@ -357,7 +376,7 @@ p {
     border: 0px;
     font-family: monospace;
     border-radius: 5px;
-    padding: 7px;
+    padding: 6px;
     cursor: pointer;
 
   }
@@ -371,7 +390,7 @@ p {
     border: 0px;
     font-family: monospace;
     border-radius: 5px;
-    padding: 7px;
+    padding: 6px;
     cursor: pointer;
 
   }
@@ -385,7 +404,7 @@ p {
     border: 0px;
     font-family: monospace;
     border-radius: 5px;
-    padding: 7px;
+    padding: 6px;
     cursor: pointer;
 
   }
@@ -407,8 +426,8 @@ p {
   border: 1px solid #E6E6E6;
   font-family: monospace;
   border-radius: 5px;
-  padding: 8px;
-  margin: 0px 1px 0px 1px;
+  padding: 6px;
+  #margin: 0px 1px 0px 1px;
   cursor: pointer;
 }
 
@@ -420,7 +439,7 @@ p {
   border: 1px solid #333;
   font-family: monospace;
   border-radius: 5px;
-  padding: 8px;
+  padding: 6px;
   margin: 0px 1px 0px 1px;
   cursor: pointer;
 }
@@ -509,7 +528,7 @@ p {
         
           <!-- Botões de comandos -->
             
-            <button id="novoArquivo" onclick="refreshPagina()" title="Novo arquivo em branco">NOVO</button>
+            <button id="novoArquivo" onclick="novoArquivo()" title="Novo arquivo em branco">NOVO ARQUIVO</button>
             <button id="importar" title="Importar arquivos no formato .cho ou .txt">IMPORTAR</button>
             <input type="file" id="importarArquivo" accept=".cho, .txt" style="display: none;">
             <button id="exportar" onclick="exportChordPro()" title="Exportar arquivo no formato .cho">EXPORTAR</button>
@@ -761,6 +780,7 @@ document.getElementById('importarArquivo').addEventListener('change', function (
   if (file) {
     const reader = new FileReader();
     reader.onload = function (e) {
+resetarEstado(); // <- limpa o estado anterior
       const fileContent = e.target.result;
       const lines = fileContent.split('\n');
       let lyrics = "";
@@ -1306,10 +1326,27 @@ function limparCifra() {
     salvarEstado();
 }
 
-/* FUNÇÃO REFRESH PÁGINA - BOTÃO LIMPAR TUDO*/
+/* FUNÇÃO RESETAR PÁGINA - BOTÃO LIMPAR TUDO*/
 
-function refreshPagina() {
-    location.reload();
+
+function resetarEstado() {
+  textoOriginal = '';
+  tomSalvo = '';
+  transposto = false;
+  undoStack = [];
+  redoStack = [];
+  currentText = '';
+}
+
+
+function novoArquivo() {
+  resetarEstado();
+  document.getElementById("songTitle").value = '';
+  document.getElementById("composer").value = '';
+  document.getElementById("key").value = '-';
+  document.getElementById("songLyrics").value = '';
+  document.getElementById("visor").innerHTML = '';
+  document.getElementById("used-chords-list").innerHTML = '';
 }
 
 
