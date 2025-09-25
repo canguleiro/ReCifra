@@ -1,1425 +1,1309 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReCifra - Editor de Acordes</title>
+    <title>ReCifra - Editor de Acordes Otimizado</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
     <style>
-        
-/* Estilos gerais para o editor e visualização */
+        html {
+            font-size: 90%; /* Reduz o tamanho base para escalar toda a UI */
+        }
+        /* TEMA ESCURO (PADRÃO) */
         body {
-            font-family: calibri, sans-serif;
-            margin: 10px;
-            padding: 10px 40px;
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            color: #d1d5db;
+            transition: background-color 0.3s, color 0.3s;
         }
-
-/* Contêiner flexível para organizar editor e visualização lado a lado */
-        .container {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: stretch;
+        textarea, input, select {
+            font-family: 'Fira Code', monospace;
+            background-color: #1f2937;
+            border-color: #4b5563;
+            color: #e5e7eb;
         }
+        textarea::placeholder, input::placeholder { color: #6b7280; }
+        select:has(option[value="-"]:checked) { color: #999; }
+        .visor, .bg-secondary { background-color: #1f2937; }
+        .border-secondary { border-color: #4b5563; }
+        .text-main { color: #d1d5db; }
+        .text-secondary { color: #9ca3af; }
+        .text-title { color: white; }
+        .chord-color { color: #D32F2F; } /* Vermelho */
+        .used-chord-btn { background-color: #4f46e5; color: white; } /* indigo-600 */
+        .used-chord-btn:hover { background-color: #4338ca; } /* indigo-700 */
 
-/* Estilos para as seções de editor e visualização */
-        .editor, .visualizacao {
-            width: 48%;
+        /* TEMA CLARO */
+        body.light {
+            background-color: #f9fafb; /* gray-50 */
+            color: #1f2937; /* gray-800 */
         }
-
-/* Estiliza Nome do Sistema */
-h1 {
-   
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 35px;
-    border-radius: 5px;
-  }
-
-/* Estiliza Nome do Sistema */
-.ReCifra {
-        background-color: #333;
-        color: #fff;
-        border-radius: 5px;
-        padding: 3px 10px 3px 10px;
-}
-
-/* Estilos para campos de texto e inputs */
-        textarea, input {
-            width: 100%;
-            margin-bottom: 5px;
-            font-family: monospace;
-            
+        .light textarea, .light input, .light select {
+            background-color: white;
+            border-color: #d1d5db; /* gray-300 */
+            color: #111827; /* gray-900 */
         }
-
-/* Estilo específico para o campo de letras da música */
-textarea {
-  width: 100%;
-  height: 400px;
-  font-family: monospace;
-  font-size: 12px;
-  padding: 10px;
-  resize: none;
-  overflow-x: hidden;
-  box-sizing: border-box;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-/* Estilo do cabeçalho (inputs de título e compositor) */
-
-.header {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.header input,
-#key {
-  padding: 6px;
-  height: 30px;
-  font-size: 12px;
-  font-family: monospace;
-  box-sizing: border-box;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-/* Proporções individuais */
-.header input {
-  flex: 4; /* Título e Compositor */
-}
-
-#key {
-  flex: 1; /* Tom */
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-}
-
-#key:has(option[value="-"]:checked) {
-  color: #999; /* cinza claro semelhante ao placeholder */
-}
+        .light .visor, .light .bg-secondary { background-color: #f3f4f6; } /* gray-100 */
+        .light .border-secondary { border-color: #d1d5db; } /* gray-300 */
+        .light .text-main { color: #1f2937; }
+        .light .text-secondary { color: #4b5563; }
+        .light .text-title { color: #111827; }
+        .light .chord-color { color: #D32F2F; } /* Vermelho */
+        .light select:has(option[value="-"]:checked) { color: #999; }
+        .light .used-chord-btn { background-color: #FFC700; color: #1f2937; }
+        .light .used-chord-btn:hover { background-color: #eab308; }
 
 
-/* Estilo para Painel de Visualização */
-
-/* Título da Área*/
-.Visu {
-        font-size: 18px;
-        font-weight: bold;
-        background-color: #F7F7F7;
-        color: #333;
-        border-radius: 5px;
-        padding: 5px 10px 5px 10px;
-       
-}
-
-/* Área de Texto */
-.visor {
-    white-space: pre-wrap; /* Preserva espaços e quebras de linha */
-    background-color: #f7f7f7;
-    width: 95%;
-    height: 470px;
-    padding: 10px;
-    border: 0px solid #ccc;
-    border-radius: 4px;
-    margin-top: 30px;
-    margin-bottom: 10px;  
-    font-size: 14px;
-    font-family: monospace;
-    resize: none; /* Impede o redimensionamento manual */
-    overflow-x: hidden; /* Desativa barra horizontal */
-   
-}
-
-.cpro_line {
-    display: flex;
-    flex-direction: column;
-    line-height: 1;
-    margin-bottom: -30px;  /* Ajusta o espaçamento entre linhas */
-}
-
-.cpro_chords {
-    font-weight: bold;
-    color: #d32f2f;
-    line-height: 1;  /* Remove espaçamento entre acordes */
-    white-space: pre;  /* Mantém o espaçamento */
-}
-
-.cpro_lyrics {
-    line-height: 1.5;  /* Espaçamento adequado entre linhas de letras */
-    white-space: pre;  /* Preserva o espaçamento exato */
-}
-
-.section-label {
-  display: block;
-  text-align: center;
-  background-color: #e6e6e6;
-  color: #000;
-  font-weight: bold;
-  font-family: monospace;
-  font-size: 13px;
-  padding: 4px 10px;
-  border-radius: 4px;
-  width: fit-content;
-  margin-left: 2px;
-  margin-right: auto;
-  margin-top: 35px;  /* mais compacto */
-  margin-bottom: -10px; /* menor espaço entre blocos */
-}
-
-.section-label.refrao    { background-color: #00ffff; }
-.section-label.coro      { background-color: #ffff00; }
-.section-label.bis       { background-color: #00ff00; }
-.section-label.transicao { background-color: #ffab44; }
-.section-label.observacao       { background-color: #ff9999; }
-
-
-.highlight {
-    background-color: yellow;
-}
-
-/* Estiliza o título da música */
-h3 {
-    font-family: monospace;
-    font-size: 15px;
-    font-weight: bold;
-    color: #333;
-    margin-top: 1px;
-    margin-bottom: 2px;
-}
-
-/* Estiliza o nome do compositor */
-p {
-    font-size: 12px;
-    margin-top: 1px;
-    color: #555;
-    margin-bottom: -10px;
-}
-
-/* Estiliza a tonalidade (key) */
-.key {
-    font-size: 12px;
-    color: #000;
-    font-weight: normal;
-}
-
-
-/* ESTILO DA LISTA DE ACORDES */
-
-#chordlist {
+        /* ESTILOS COMUNS */
+        /* Estilos para a Visualização Expandida */
+        main.view-expanded {
+            display: block; /* Mudar de grid para block */
+        }
+        main.view-expanded .editor {
             display: none;
-            position: absolute;
-            width: 600px;
-            border: 2px solid #000000;
-            border-radius: 5px; /* Bordas arredondadas */
-            background-color: #f7f7f7;
+        }
+        main.view-expanded .visualizacao {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(17, 24, 39, 0.95); /* bg-gray-900 com opacidade */
+            padding: 2rem;
             z-index: 100;
-            padding: 10px; /* Espaçamento interno */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overscroll-behavior: contain; /* Previne scroll do body por trás */
+        }
+        .light main.view-expanded .visualizacao {
+            background-color: rgba(249, 250, 251, 0.95); /* bg-gray-50 com opacidade */
+        }
+        main.view-expanded #visor {
+            position: relative; /* Mudar de absolute para relative */
+            width: 100%;
+            max-width: 900px; /* Largura máxima para a cifra */
+            height: 90%;
+            max-height: 90vh;
+        }
+        main.view-expanded #expand-view-btn {
+            position: fixed; /* Mudar para fixed para ficar no canto da tela */
+            top: 1rem;
+            right: 5rem;
+            z-index: 110;
+        }
+        main.view-expanded #autoscroll-controls {
+            display: flex;
+        }
+        .light #autoscroll-controls {
+            background-color: rgba(229, 231, 235, 0.8); /* gray-200 com opacidade */
+            color: #1f2937; /* gray-800 */
+        }
+        .light #autoscroll-controls button:hover {
+            background-color: #d1d5db; /* gray-300 */
         }
 
-#chordlist button {
-    display: inline-block;
-    width: 70px;
-    padding: 6px;
-    margin: 2px;
-    background-color: #fcfcfc;
-    box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    z-index: 1000;
-    font-weight: semibold;
-    border: 0px solid #f4f4f4;
-    font-family: monospace;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* 🎨 Estilo para botões das colunas 1 a 4 (naturais) */
-.natural-chord {
-    background-color: #fcfcfc !important;
-    border: 1px solid #e6e6e6 !important;}
-
-.natural-chord:hover {
-    background-color: #e6e6e6 !important;  /* Azul médio no hover */
-}
-
-/* 🎨 Estilo para botões das colunas 5 a 8 (sustenidos/bemóis) */
-.altered-chord {
-    background-color: #e6e6e6 !important;
-    border: 1px solid #fcfcfc !important;
-}
-
-.altered-chord:hover {
-    background-color: #fcfcfc !important;  /* Amarelo médio no hover */
-}
-
-
-#chordlist option {
-    display: inline; /* Exibe as opções em linha */
-    margin: 0 5px; /* Espaçamento entre os itens */
-}
-
-        #chordlist button:hover {
-            background-color: #e6e6e6;
+        #visor.columns-2 {
+            column-count: 2;
+            column-gap: 2.5rem;
+        }
+        #visor.columns-2 .cpro_line,
+        #visor.columns-2 .chorus-section,
+        #visor.columns-2 h3,
+        #visor.columns-2 p {
+            break-inside: avoid;
         }
 
-#used-chords {  
-  width: none;
-  padding: 0px;
-  border: 0px solid #ccc;  
-  border-radius: 2px;  
-  color: none;
-  background-color: none; 
-  margin-bottom: 8px;  
-}  
-  
-#used-chords-list {  
-  display: flex;  
-  white-space: wrap;
-  justify-content: flex-start;
- 
-}  
-  
-#used-chords-list button {
-  width: auto; /* Largura */
-  padding: 4px; /* Espaçamento interno */
-  margin: 2px; /* Espaçamento externo */
-  border: none;  
-  border-radius: 3px;  
-  background-color: #ffd800;  
-  cursor: pointer;
-  color: #333;
-  text-align: center;
-  font-size: 12px;
-  font-weight: bold;
-}  
-  
-#used-chords-list button:hover {  
-  background-color: #ffc700;  
-}
+        .chorus-section {
+            position: relative;
+            padding-left: 1.25rem; /* Aumenta o espaço para a linha e o texto */
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            margin-left: -0.75rem; /* Ajusta o alinhamento com o resto do texto */
+            border-left: 3px solid #0891b2; /* Cor ciano, a mesma da tag Refrão */
+            margin-bottom: 1rem;
+        }
+        .light .chorus-section {
+            border-left-color: #0891b2; /* Mantém a mesma cor no tema claro */
+        }
+        .visor {
+            white-space: pre-wrap;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            border-width: 1px;
+        }
+        .cpro_line { display: flex; flex-direction: column; line-height: 1.2; margin-bottom: 0.5rem; }
+        .cpro_chords { font-weight: bold; line-height: 1; white-space: pre; }
+        .cpro_lyrics { line-height: 1.5; white-space: pre; }
+        .section-label { display: block; text-align: left; font-weight: bold; font-size: 0.8rem; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: fit-content; margin: 1rem 0 0.5rem; color: white; }
+        .section-label.refrao    { background-color: #0891b2; } /* cyan-600 */
+        .section-label.coro      { background-color: #ca8a04; } /* yellow-600 */
+        .section-label.bis       { background-color: #16a34a; } /* green-600 */
+        .section-label.transicao { background-color: #ea580c; } /* orange-600 */
+        .section-label.observacao{ background-color: #dc2626; } /* red-600 */
+        .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; z-index: 50; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+        .toast.show { opacity: 1; visibility: visible; }
+        
+        .btn-coro { background-color: #FFFF00; color: #1f2937; }
+        .btn-coro:hover { background-color: #e6e600; }
+        .btn-bis { background-color: #00FF00; color: #1f2937; }
+        .btn-bis:hover { background-color: #00e600; }
+        .btn-tagrefrao { background-color: #00FFFF; color: #1f2937; }
+        .btn-tagrefrao:hover { background-color: #00e6e6; }
+        .btn-transicao { background-color: #FFAB44; color: #1f2937; }
+        .btn-transicao:hover { background-color: #ff9f2b; }
+        .btn-observacao { background-color: #FF9999; color: #1f2937; }
+        .btn-observacao:hover { background-color: #ff8080; }
 
+        #chordlist button {
+             display: inline-block;
+             padding: 4px 6px;
+             margin: 1.5px;
+             font-size: 0.75rem;
+             text-align: center;
+             font-weight: normal;
+             border: 1px solid #4b5563;
+             font-family: 'Fira Code', monospace;
+             border-radius: 5px;
+             cursor: pointer;
+        }
+        .light #chordlist button { border-color: #d1d5db; }
+        .natural-chord { background-color: #4b5563; } /* gray-600 */
+        .natural-chord:hover { background-color: #5d6a7e; }
+        .altered-chord { background-color: #374151; } /* gray-700 */
+        .altered-chord:hover { background-color: #4b5563; }
+        .light .natural-chord { background-color: #f9fafb; } /* gray-50 */
+        .light .natural-chord:hover { background-color: #f3f4f6; }
+        .light .altered-chord { background-color: #e5e7eb; } /* gray-200 */
+        .light .altered-chord:hover { background-color: #d1d5db; }
 
-/* Estilo do BOTÃO CHORDPRO */
-#chordPro {
-    display: inline-block; /* Faz o botão ficar em uma nova linha */
-    background-color: #E6E6E6;
-    font-weight: bold;
-    border: 1px solid #E6E6E6;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 6px;
-    margin: 0px 1px 0px 1px;
-    cursor: pointer;
- }
+        /* Estilos para o Modal de Ajuda */
+        #help-modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        #help-modal-content h1, #help-modal-content h2 {
+            color: white;
+        }
+        .light #help-modal-content h1, .light #help-modal-content h2 {
+            color: #111827;
+        }
+        #help-modal-content strong {
+            color: #a5b4fc; /* indigo-300 */
+        }
+        .light #help-modal-content strong {
+            color: #4f46e5; /* indigo-600 */
+        }
 
-/* Estilo do BOTÃO VERSAL */
-#convertCaixaAlta {
-    display: inline-block; /* Faz o botão ficar em uma nova linha */
-    background-color: #E6E6E6;
-    font-weight: bold;
-    border: 0px solid #E6E6E6;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 6px;
-    margin: 0px 1px 0px 1px;
-    cursor: pointer;
- }
+        /* Dicionário de Acordes */
+        .chord-lookup { cursor: help; }
+        .light #chord-diagram-tooltip { background-color: #f9fafb; border-color: #d1d5db;}
+        #instrument-guitar, #instrument-cavaquinho { transition: background-color 0.2s, color 0.2s; }
+        #instrument-guitar.active, #instrument-cavaquinho.active { background-color: #4f46e5; color: white; }
+        .light #instrument-guitar.active, .light #instrument-cavaquinho.active { background-color: #FFC700; color: #1f2937; }
 
-
-/* Estilo do Botão REFRÃO NEGRITO */
- #Refrao {
-    display: inline-block; /* Faz o botão ficar em uma nova linha */
-    margin-bottom: 8px; /* Espaço entre o botão e o textarea */
-    background-color: #E6E6E6;
-    font-weight: bold;
-    border: 0px;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 6px;
-    cursor: pointer;
-               
-  }
-
-
-/* Estilo do Botão CÔRO */
- #Coro {
-    display: relative; /* Faz o botão ficar em uma nova linha */
-    margin-bottom: 8px; /* Espaço entre o botão e o textarea */
-    background-color: yellow;
-    font-weight: bold;
-    border: 0px;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 6px;
-    cursor: pointer;
-
-  }
-
-/* Estilo do Botão Tag #BIS */
- #tagBis {
-    display: relative; /* Faz o botão ficar em uma nova linha */
-    margin-bottom: px; /* Espaço entre o botão e o textarea */
-    background-color: #00ff00;
-    font-weight: bold;
-    border: 0px;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 6px;
-    cursor: pointer;
-
-  }
-
-/* Estilo do Botão Tag #REFRÃO */
- #tagRefrao {
-    display: relative; /* Faz o botão ficar em uma nova linha */
-    margin-bottom: 8px; /* Espaço entre o botão e o textarea */
-    background-color: #00ffff;
-    font-weight: bold;
-    border: 0px;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 6px;
-    cursor: pointer;
-
-  }
-
-/* Estilo do Botão Tag #TRANSIÇÃO */
- #tagTransicao {
-    display: relative; /* Faz o botão ficar em uma nova linha */
-    margin-bottom: 8px; /* Espaço entre o botão e o textarea */
-    background-color: #ffab44;
-    font-weight: bold;
-    border: 0px;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 6px;
-    cursor: pointer;
-
-  }
-
-/* Estilo do Botão Tag #OBSERVAÇÃO */
- #tagObs {
-    display: relative; /* Faz o botão ficar em uma nova linha */
-    margin-bottom: 8px; /* Espaço entre o botão e o textarea */
-    background-color: #FF9999;
-    font-weight: bold;
-    border: 0px;
-    font-family: monospace;
-    border-radius: 5px;
-    padding: 6px;
-    cursor: pointer;
-
-  }
-
-
-/* Estilo PADRÃO dos BOTÕES ESCUROS */
-#exportar,
-#importar,
-#limparCifra,
-#novoArquivo,
-#limparAcordesUsados,
-#restaurarTomOriginal,
-#desfazer,
-#refazer {
-  display: relative;
-  background-color: #333;
-  color: #fff;
-  font-weight: bold;
-  border: 1px solid #E6E6E6;
-  font-family: monospace;
-  border-radius: 5px;
-  padding: 6px;
-  #margin: 0px 1px 0px 1px;
-  cursor: pointer;
-}
-
-/* Estilo do BOTÃO RENDERIZAR (destaque invertido) */
-#renderizar {
-  display: relative;
-  background-color: #F7F7F7;
-  font-weight: bold;
-  border: 1px solid #333;
-  font-family: monospace;
-  border-radius: 5px;
-  padding: 6px;
-  margin: 0px 1px 0px 1px;
-  cursor: pointer;
-}
-
-           
     </style>
 </head>
+<body class="antialiased p-4 md:p-8">
 
-<body>
+    <div class="container mx-auto max-w-7xl">
+        <header class="text-left mb-10 relative">
+            <h1 class="text-2xl md:text-3xl font-bold text-title">
+                <span class="bg-gray-700 text-white rounded-md px-3 py-2">#ReCifra - Editor de Acordes</span>
+            </h1>
+             <div class="absolute top-0 right-0 flex items-center gap-4">
+                 <div class="flex items-center gap-1 bg-secondary rounded-full p-1 text-xs">
+                    <button id="instrument-guitar" class="px-3 py-1 rounded-full font-semibold" title="Violão">Violão</button>
+                    <button id="instrument-cavaquinho" class="px-3 py-1 rounded-full font-semibold" title="Cavaquinho">Cavaquinho</button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="help-btn" class="p-2 rounded-full bg-secondary hover:bg-gray-500 focus:outline-none" title="Ajuda">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </button>
+                    <button id="theme-toggle" class="p-2 rounded-full bg-secondary hover:bg-gray-500 focus:outline-none" title="Mudar Tema">
+                        <svg id="theme-icon-sun" class="h-6 w-6 text-yellow-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <svg id="theme-icon-moon" class="h-6 w-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                    </button>
+                </div>
+             </div>
+        </header>
 
-   <!-- Painel de Edição -->
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <!-- PAINEL DE EDIÇÃO -->
+            <div class="editor flex flex-col gap-4">
+                <div class="header grid grid-cols-5 gap-2">
+                    <input type="text" id="songTitle" placeholder="TÍTULO" class="col-span-2 py-1.5 px-2 rounded-md border-2 border-secondary focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <input type="text" id="composer" placeholder="Composição" class="col-span-2 py-1.5 px-2 rounded-md border-2 border-secondary focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <select id="key" class="py-1.5 px-2 rounded-md border-2 border-secondary focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                         <option value="-">Tom</option>
+                         <option value="C">C</option><option value="C#">C#</option><option value="D">D</option><option value="D#">D#</option><option value="E">E</option><option value="F">F</option><option value="F#">F#</option><option value="G">G</option><option value="G#">G#</option><option value="A">A</option><option value="A#">A#</option><option value="B">B</option>
+                         <option value="Cm">Cm</option><option value="C#m">C#m</option><option value="Dm">Dm</option><option value="D#m">D#m</option><option value="Em">Em</option><option value="Fm">Fm</option><option value="F#m">F#m</option><option value="Gm">Gm</option><option value="G#m">G#m</option><option value="Am">Am</option><option value="A#m">A#m</option><option value="Bm">Bm</option>
+                    </select>
+                </div>
 
-   <!-- Painel de Edição -->
-<div class="container">
-    <div class="editor">
-        <h1><span class="ReCifra">#ReCifra - Editor de Acordes</span></h1>
-        <div class="header">
+                <div class="toolbars flex flex-nowrap gap-1.5">
+                    <button data-tag-type="refrao" title="Envolve o texto selecionado como Refrão (negrito)" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-2 rounded-md text-xs">{REFRÃO}</button>
+                    <button data-tag-type="coro" title="Envolve o texto selecionado como Côro (destaque)" class="btn-coro font-semibold py-2 px-2 rounded-md text-xs">{CÔRO}</button>
+                    <button data-tag-type="bis" title="Insere a marcação #BIS" class="btn-bis font-semibold py-2 px-2 rounded-md text-xs">#BIS</button>
+                    <button data-tag-type="tagRefrao" title="Insere a marcação #REFRÃO" class="btn-tagrefrao font-semibold py-2 px-2 rounded-md text-xs">#REFRÃO</button>
+                    <button data-tag-type="transicao" title="Insere a marcação #TRANSIÇÃO" class="btn-transicao font-semibold py-2 px-2 rounded-md text-xs">#TRANSIÇÃO</button>
+                    <button data-tag-type="observacao" title="Insere a marcação #OBSERVAÇÃO" class="btn-observacao font-semibold py-2 px-2 rounded-md text-xs">#OBSERVAÇÃO</button>
+                    <button id="desfazer" title="Desfazer (Ctrl+Z)" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-2 rounded-md text-xs">&lt;&lt;</button>
+                    <button id="refazer" title="Refazer (Ctrl+Y)" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-2 rounded-md text-xs">&gt;&gt;</button>
+                </div>
 
-                <input type="text" id="songTitle" placeholder="TÍTULO" onpaste="renderVisor()" oninput="convertToUpperCase(); renderVisor()"/>
-                <input type="text" id="composer" placeholder="Composição" onpaste="renderVisor()" oninput="renderVisor()"/>
-                <select id="key" onchange="transposeSong(); renderVisor()">
-               
-<!-- Opções de tonalidade -->
-                  <option value="-">Tom</option>
-                  <option value="C">C</option>
-                  <option value="C#">C#</option>
-                  <option value="D">D</option>
-                  <option value="D#">D#</option>
-                  <option value="E">E</option>
-                  <option value="F">F</option>
-                  <option value="F#">F#</option>
-                  <option value="G">G</option>
-                  <option value="G#">G#</option>
-                  <option value="A">A</option>
-                  <option value="A#">A#</option>
-                  <option value="B">B</option>
-                    <option value="Cm">Cm</option>
-                    <option value="C#m">C#m</option>
-                    <option value="Dm">Dm</option>
-                    <option value="D#m">D#m</option>
-                    <option value="Em">Em</option>
-                    <option value="Fm">Fm</option>
-                    <option value="F#m">F#m</option>
-                    <option value="Gm">Gm</option>
-                    <option value="G#m">G#m</option>
-                    <option value="Am">Am</option>
-                    <option value="A#m">A#m</option>
-                    <option value="Bm">Bm</option>
-                </select>
+                <div id="used-chords" class="p-2 bg-secondary rounded-md min-h-[40px]">
+                    <div id="used-chords-list" class="flex flex-wrap gap-1"></div>
+                </div>
+
+                <textarea id="songLyrics" class="w-full h-96 p-3 rounded-md border-2 border-secondary focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none" title="Shift + Nota (C-B) para abrir seletor de acordes" placeholder="Digite, cole ou importe sua música..."></textarea>
+                <div id="chordlist" class="hidden absolute z-10 bg-secondary border border-secondary rounded-md p-2 shadow-lg grid grid-cols-8 gap-1"></div>
+                
+                <div class="flex flex-wrap gap-2 justify-between">
+                     <div class="flex flex-wrap gap-2">
+                        <button id="chordPro" title="Converter para formato [ChordPro]" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-2 rounded-md text-xs">[CHORDPRO]</button>
+                        <button id="novoArquivo" title="Novo arquivo" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-2 rounded-md text-xs">NOVO</button>
+                        <button id="importar" title="Importar .cho ou .txt" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-2 rounded-md text-xs">IMPORTAR</button>
+                        <input type="file" id="importarArquivo" accept=".cho, .txt" class="hidden">
+                        <button id="exportar" title="Exportar para .cho" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-2 rounded-md text-xs">EXPORTAR</button>
+                     </div>
+                     <div class="flex flex-wrap gap-2">
+                        <button id="limparCifra" title="Limpar acordes da letra" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-2 rounded-md text-xs">LIMPAR CIFRA</button>
+                        <button id="restaurarTomOriginal" title="Restaurar tom original" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-2 rounded-md text-xs">RESTAURAR TOM</button>
+                     </div>
+                </div>
             </div>
 
-
-<!-- Botão VERSAL -->
-<button id="convertCaixaAlta" onclick="convertCaixaAlta()" title="Converter conteúdo em maiúsculo, preservando acordes">VERSAL</button>
-
-<!-- Botão [CHORDPRO] -->
-<button id="chordPro" onclick="chordPro()" title="Converter para formato [ChordPro]">[CHORDPRO]</button>
-
-<!-- Botão {Refrão} -->
-<button id="Refrao" onclick="inserirRefrao()" title="Selecione o trecho na letra da música e clique aqui para para definir o refrão">{REFRÃO}</button>
-
-<!-- Botão {Côro} -->
-<button id="Coro" onclick="inserirCoro()" title="Selecione o trecho na letra da música e clique aqui para definir o côro">{CÔRO}</button>
-
-<!-- Botão #BIS -->
-<button id="tagBis" onclick="inserirBis()" title="Inserir a tag BIS no ponto desejado">#BIS</button>
-
-<!-- Botão #REFRÃO -->
-<button id="tagRefrao" onclick="inserirtagRefrao()" title="Inserir a tag REFRÃO no ponto desejado">#REFRÃO</button>
-
-<!-- Botão #TRANSIÇÃO -->
-<button id="tagTransicao" onclick="inserirtagTransicao()" title="Inserir a tag TRANSIÇÃO no ponto desejado">#TRANSIÇÃO</button>
-
-<!-- Botão #OBSERVAÇÃO -->
-<button id="tagObs" onclick="inserirtagObs()" title="Inserir a tag OBSERVAÇÃO no ponto desejado">#OBSERVAÇÃO</button>
-
-<!-- AREA DE TEXTO - SONGLYRICS -->
-
-<div id="used-chords">  
-  <span id="used-chords-list"></span>  
-</div>
-
-            <textarea id="songLyrics" onpaste="renderVisor()" oninput="renderVisor()" onkeyup="renderVisor()" title="Clique SHIFT + Nota Musical para abrir Lista de Acordes. Exemplo: SHIFT + C para acordes em DÓ" placeholder="Digite, cole ou importe sua música"></textarea>
-            <div id="chordlist"></div>
+            <!-- PAINEL DE VISUALIZAÇÃO -->
+            <div class="visualizacao relative">
+                 <button id="expand-view-btn" class="absolute top-2 right-2 p-2 rounded-full bg-secondary hover:bg-gray-500 z-20" title="Expandir/Recolher Visualização">
+                    <svg id="icon-expand" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9m12-3.75v4.5m0-4.5h-4.5m4.5 0L15 9m-9 7.5v-4.5m0 4.5h4.5m-4.5 0L9 15m12 3.75v-4.5m0 4.5h-4.5m4.5 0L15 15" />
+                    </svg>
+                    <svg id="icon-collapse" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9V4.5M15 9h4.5M15 9l5.25-5.25M15 15v4.5M15 15h4.5M15 15l5.25 5.25" />
+                    </svg>
+                </button>
+                <div id="visor" class="visor border-secondary absolute inset-0"></div>
+                <div id="autoscroll-controls" class="hidden absolute bottom-4 left-1/2 -translate-x-1/2 z-30 bg-gray-800 bg-opacity-70 rounded-full p-2 flex items-center gap-2 text-white">
+                    <!-- Speed Controls -->
+                    <button id="speed-down" title="Diminuir Velocidade" class="p-2 rounded-full hover:bg-gray-600">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" /></svg>
+                    </button>
+                    <button id="play-pause" title="Iniciar/Pausar Rolagem" class="p-2 rounded-full hover:bg-gray-600">
+                        <svg id="icon-play" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <svg id="icon-pause" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </button>
+                     <span id="speed-display" class="text-sm font-mono w-4 text-center">5</span>
+                    <button id="speed-up" title="Aumentar Velocidade" class="p-2 rounded-full hover:bg-gray-600">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                    </button>
+                    <!-- Separator -->
+                    <div class="border-l border-gray-600 h-6 mx-2"></div>
+                    <!-- Font Size Controls -->
+                    <button id="font-down" title="Diminuir Fonte" class="w-8 h-8 flex items-center justify-center text-xl font-bold rounded-full hover:bg-gray-600">-</button>
+                    <span class="font-semibold text-sm select-none">Fonte</span>
+                    <button id="font-up" title="Aumentar Fonte" class="w-8 h-8 flex items-center justify-center text-xl font-bold rounded-full hover:bg-gray-600">+</button>
+                    <!-- Separator -->
+                    <div class="border-l border-gray-600 h-6 mx-2"></div>
+                    <!-- Columns Control -->
+                    <button id="columns-btn" title="Alternar Colunas" class="w-10 h-8 flex items-center justify-center text-sm font-bold rounded-full hover:bg-gray-600">
+                        <span id="columns-display">1x</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- MODAL DE AJUDA -->
+    <div id="help-modal" class="hidden fixed inset-0 z-50 overflow-auto flex items-center justify-center">
+        <div id="help-modal-backdrop" class="fixed inset-0"></div>
+        <div id="help-modal-content" class="bg-secondary text-main m-4 p-6 rounded-lg max-w-2xl w-full relative max-h-[90vh] overflow-y-auto">
+            <button id="close-help-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <h1 class="text-2xl font-bold mb-4">SOBRE O #ReCifra</h1>
+            <p class="mb-6">O #ReCifra é um editor de acordes online gratuito que permite converter cifras convencionais (acordes sobre a letra) para o formato ChordPro, amplamente utilizado em aplicativos e softwares de música.</p>
             
-        
-          <!-- Botões de comandos -->
-            
-            <button id="novoArquivo" onclick="novoArquivo()" title="Novo arquivo em branco">NOVO ARQUIVO</button>
-            <button id="importar" title="Importar arquivos no formato .cho ou .txt">IMPORTAR</button>
-            <input type="file" id="importarArquivo" accept=".cho, .txt" style="display: none;">
-            <button id="exportar" onclick="exportChordPro()" title="Exportar arquivo no formato .cho">EXPORTAR</button>
-            <button id="limparCifra" onclick="limparCifra()" title="Limpa as cifras ChordPro da Área de Texto e mantém a letra da música">LIMPAR CIFRA</button>
-            <button id="limparAcordesUsados" onclick="limparAcordesUsados()" title="Limpa a lista de acordes usados na Área de Atalho">LIMPAR ACORDES</button>
-            <button id="restaurarTomOriginal" onclick="restaurarTomOriginal()" title="Restaura a tonalidade original">RESTAURAR TOM</button>
-<button id="desfazer" onclick="desfazer()" title="Desfazer última ação">&lt;&lt;</button>
-<button id="refazer" onclick="refazer()" title="Refazer ação desfeita">&gt;&gt;</button>
-              
+            <h2 class="text-xl font-bold mb-3">FUNCIONALIDADES:</h2>
+            <ul class="list-disc list-inside space-y-2 mb-6">
+                <li><strong>Conversão para ChordPro:</strong> Converte automaticamente cifras no formato "acorde sobre a letra" para o padrão [ChordPro].</li>
+                <li><strong>Transposição de Tom:</strong> Altere a tonalidade da música com um clique.</li>
+                <li><strong>Editor Inteligente:</strong> Adicione acordes facilmente com o seletor (Shift + Nota) e use tags para estruturar sua música ({Refrão}, #BIS, etc.).</li>
+                <li><strong>Importação e Exportação:</strong> Importe arquivos de cifras (.txt, .cho) e exporte no formato ChordPro (.cho).</li>
+                <li><strong>Modo Dia/Noite:</strong> Alterne entre temas claro e escuro para melhor visualização.</li>
+                <li><strong>Desfazer/Refazer:</strong> Histórico de alterações para facilitar a edição.</li>
+            </ul>
+
+            <h2 class="text-xl font-bold mb-3">COMO USAR:</h2>
+            <ol class="list-decimal list-inside space-y-2 mb-6">
+                <li><strong>Cole ou Digite sua Cifra:</strong>
+                    <ul class="list-disc list-inside ml-4 mt-1">
+                        <li>A letra da música será automaticamente convertida para MAIÚSCULAS, preservando os acordes.</li>
+                        <li>Posicione os acordes na linha acima da sílaba correspondente.</li>
+                    </ul>
+                </li>
+                <li><strong>Converta para ChordPro:</strong>
+                    <ul class="list-disc list-inside ml-4 mt-1">
+                        <li>Clique no botão <strong>[CHORDPRO]</strong> para unir os acordes à letra no formato `[C]letra`.</li>
+                    </ul>
+                </li>
+                <li><strong>Estruture a Música:</strong>
+                    <ul class="list-disc list-inside ml-4 mt-1">
+                        <li>Use os botões de tags coloridas (ex: `{REFRÃO}`, `#BIS`) para definir seções como refrão, transição, etc.</li>
+                    </ul>
+                </li>
+                <li><strong>Transponha o Tom:</strong>
+                    <ul class="list-disc list-inside ml-4 mt-1">
+                        <li>Selecione a nova tonalidade no menu "Tom". A cifra será transposta automaticamente.</li>
+                    </ul>
+                </li>
+                 <li><strong>Exporte:</strong>
+                    <ul class="list-disc list-inside ml-4 mt-1">
+                        <li>Preencha os campos "TÍTULO", "Composição" e "Tom" e clique em <strong>EXPORTAR</strong> para salvar o arquivo .cho.</li>
+                    </ul>
+                </li>
+            </ol>
+            <hr class="border-gray-600 my-4">
+            <p class="text-sm text-center text-secondary italic">Desenvolvido com o auxílio do Gemini.</p>
         </div>
-
-
-<!-- PAINEL DE VISUALIZAÇÃO -->
-
-        <div class="visualizacao">
-    <h2><span class="Visu">PAINEL DE VISUALIZAÇÃO - CHORD OVER</span></h2>
-    <div id="visor" class="visor"></div> <!-- Altere para 'div' ao invés de 'textarea' -->
-    <button id="renderizar" onclick="renderVisor()" title="Processar alterações e gerar nova visualização">PROCESSAR</button>
-</div>
-
-
-<!-- SCRIPTS -->
-
-<script>
-
-// Variáveis globais  
-let importedKey = null;  
-let textoOriginal = ''; // Salva a versão original sem alterações
-let tomSalvo = '';       // Salva o tom original definido
-let transposto = false;  // Flag para saber se houve transposição
-
-let undoStack = [];
-let redoStack = [];
-let currentText = '';
-
-
-// FUNÇÃO RENDERIZAR VISOR
- 
-function renderVisor(keyParam) {
-  const title = document.getElementById('songTitle').value;
-  const composer = document.getElementById('composer').value;
-  const key = keyParam ?? (document.getElementById('key')?.value || 'C');
-  const lyrics = document.getElementById('songLyrics').value;
-  const lines = lyrics.split('\n');
-
-  let htmlContent = `<h3>${title} (${key})</h3><p>${composer}</p>`;
-
-  let inTextFill = false;
-  let inChorus = false;
-
-  lines.forEach(originalLine => {
-if (originalLine.includes('{C:Chorus}')) {
-  htmlContent += `<div class="section-label refrao">← REFRÃO →</div>`;
-  inChorus = true;
-  return;
-}
-
-    if (originalLine.includes('{C:}')) {
-      inChorus = false;
-      return;
-    }
-
-    // Marcações de cor
-    const colorMap = {
-      '{textfill: yellow}': 'yellow',
-      '{textfill: #00ff00}': '#00ff00',
-      '{textfill: #00ffff}': '#00ffff',
-      '{textfill: #ffab44}': '#ffab44',
-      '{textfill: #ff9999}': '#ff9999'
-    };
-
-    for (const tag in colorMap) {
-      if (originalLine.includes(tag)) {
-        inTextFill = true;
-        originalLine = originalLine.replace(new RegExp(tag, 'g'), '');
-      }
-    }
-
-    if (originalLine.includes('{textfill}')) {
-      originalLine = originalLine.replace(/{textfill}/g, '');
-      inTextFill = false;
-    }
-
-    // Destaques automáticos
-    const highlights = {
-      'CÔRO': 'yellow',
-      'BIS': '#00ff00',
-      'REFRÃO': '#00ffff',
-      'TRANSIÇÃO': '#ffab44',
-      'OBSERVAÇÃO': '#ff9999'
-    };
-
-    const trimmed = originalLine.trim();
-if (inTextFill && highlights[trimmed]) {
-  const tipo = trimmed.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  htmlContent += `<div class="section-label ${tipo}">${trimmed}</div>`;
-  return;
-}
-
-    // Chord over lyrics
-    let lyricsLine = '';
-    let chordsLine = '';
-    let i = 0;
-    let displayPos = 0;
-
-    while (i < originalLine.length) {
-      if (originalLine[i] === '[') {
-        let end = originalLine.indexOf(']', i);
-        if (end !== -1) {
-          const chord = originalLine.substring(i + 1, end);
-
-          // Preenche espaços até a posição atual de exibição
-          while (chordsLine.length < displayPos) {
-            chordsLine += ' ';
-          }
-
-          chordsLine += chord;
-
-          i = end + 1;
-        } else {
-          lyricsLine += originalLine[i];
-          displayPos++;
-          i++;
-        }
-      } else {
-        lyricsLine += originalLine[i];
-        displayPos++;
-        i++;
-      }
-    }
-
-    const styledLyrics = inChorus ? `<strong>${lyricsLine}</strong>` : lyricsLine;
-    const lyricsWrapped = inTextFill
-      ? `<div class="cpro_lyrics"><span class="highlight">${styledLyrics}</span></div>`
-      : `<div class="cpro_lyrics">${styledLyrics}</div>`;
-
-    htmlContent += `
-      <div class="cpro_line">
-        <div class="cpro_chords">${chordsLine}</div>
-        ${lyricsWrapped}
-      </div>`;
-  });
-
-  document.getElementById('visor').innerHTML = htmlContent;
-}
-
-
-// Adiciona o evento ao BOTÃO RENDERIZAR
-document.getElementById('renderizar').addEventListener('click', renderVisor);
-
-
-<!-- FUNÇÃO TRANSPOSIÇÃO DE TONALIDADE -->
-
-
-const semitoneMap = {
-    'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3, 'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8, 'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11,  
-'Cm': 0, 'C#m': 1, 'Dbm': 1, 'Dm': 2, 'D#m': 3, 'Ebm': 3, 'Em': 4, 'Fm': 5, 'F#m': 6, 'Gbm': 6, 'Gm': 7, 'G#m': 8, 'Abm': 8, 'Am': 9, 'A#m': 10, 'Bbm': 10, 'Bm': 11
-
-};
-const chordOrder = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-  
-function transposeChord(chord, interval) {
-    let regex = /^([A-G][#b]?)(.*)$/; // Captura a base do acorde e o sufixo
-    let match = chord.match(regex);
-
-    if (!match) return chord; // Se não for um acorde válido, retorna o original
-
-    let baseChord = match[1]; // Ex: "C" ou "C#"
-    let suffix = match[2]; // Ex: "m7", "7", "°", etc.
-    
-    let originalIndex = semitoneMap[baseChord];
-    let newIndex = (originalIndex + interval + 12) % 12;
-    let transposedChord = chordOrder[newIndex];
-    
-    return transposedChord + suffix; // Preserva o sufixo e transpoe a base
-}
-
-// transpor música
-
-function transposeSong() {
-  const textarea = document.getElementById('songLyrics');
-  const selectedKey = document.getElementById('key').value;
-  
-  let songLyrics = textoOriginal || textarea.value;
-  let songChords = songLyrics.match(/\[([^\]]+)\]/g);
-  if (!songChords) return;
-
-  let currentKey = detectKey(songChords);
-  let interval = semitoneMap[selectedKey] - semitoneMap[currentKey];
-
-  // Salva a versão original apenas uma vez
-  if (!transposto) {
-    textoOriginal = songLyrics;
-    tomSalvo = currentKey.match(/^([A-G][#b]?)/)?.[1] || "C";
-    transposto = true;
-  }
-
-  let transposedLyrics = songLyrics.replace(/\[([^\]]+)\]/g, function(_, chord) {
-    return `[${transposeChord(chord, interval)}]`;
-  });
-
-  textarea.value = transposedLyrics;
-  renderVisor();
-}
-
-// detectar acorde inicial
-
-function detectKey(chords) {
-  for (let chord of chords) {
-    let cleanChord = chord.replace(/[\[\]]/g, '');
-    let match = cleanChord.match(/^([A-G][#b]?)(m)?/);
-    if (match) {
-      const base = match[1] + (match[2] || '');
-      if (semitoneMap.hasOwnProperty(base)) {
-        return base;
-      }
-    }
-  }
-  return 'C'; // fallback
-}
-
-// restaurar o tom original
-
-function restaurarTomOriginal() {
-  if (textoOriginal && tomSalvo) {
-    document.getElementById('songLyrics').value = textoOriginal;
-
-    const keySelect = document.getElementById('key');
-    keySelect.value = tomSalvo;
-
-    transposto = false;
-    renderVisor();
-  } else {
-    alert("Nenhuma transposição foi realizada ainda.");
-  }
-}
-
-
-<!-- IMPORTAR ARQUIVO -->
-
-
-document.getElementById('importar').addEventListener('click', function () {
-  document.getElementById('importarArquivo').click();
-});
-
-document.getElementById('importarArquivo').addEventListener('change', function (event) {
-  const file = event.target.files[0];
-
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-resetarEstado(); // <- limpa o estado anterior
-      const fileContent = e.target.result;
-      const lines = fileContent.split('\n');
-      let lyrics = "";
-      let importedKey = "C"; // Tom padrão
-
-      lines.forEach(line => {
-        if (line.startsWith('{title:')) {
-          document.getElementById('songTitle').value = line.replace('{title:', '').replace('}', '').trim();
-        } else if (line.startsWith('{artist:')) {
-          document.getElementById('composer').value = line.replace('{artist:', '').replace('}', '').trim();
-        } else if (line.startsWith('{key:')) {
-          importedKey = line.replace('{key:', '').replace('}', '').trim();
-          document.getElementById('key').value = importedKey;
-        } else {
-          lyrics += line + '\n';
-        }
-      });
-
-      document.getElementById('songLyrics').value = lyrics.trim();
-      renderVisor(importedKey); // Passa o tom importado explicitamente
-      salvarEstado();
-    };
-
-    reader.onerror = function () {
-      console.error('Erro ao ler o arquivo.');
-    };
-
-    reader.readAsText(file);
-  } else {
-    console.error('Nenhum arquivo foi selecionado.');
-  }
-});
-
-
-// CONVERSÃO DE CHORDOVER PARA CHORDPRO 
-
-function chordPro() {
-    const textArea = document.getElementById('songLyrics');
-    const lines = textArea.value.split('\n');
-    let chordProLyrics = '';
-    let i = 0;
-
-    while (i < lines.length) {
-        const chordsLine = lines[i] ? lines[i] : '';
-        const lyricsLine = lines[i + 1] ? lines[i + 1] : '';
-
-        if (isChordLine(chordsLine) && lyricsLine) {
-            let processedLine = '';
-            let lyricIndex = 0;
-
-            let chordPosition = 0;
-
-            while (chordPosition < chordsLine.length) {
-                if (chordsLine[chordPosition] !== ' ') {
-                    let chord = '';
-                    let startChordPosition = chordPosition;
-
-                    while (chordPosition < chordsLine.length && chordsLine[chordPosition] !== ' ') {
-                        chord += chordsLine[chordPosition];
-                        chordPosition++;
-                    }
-
-                    // Adiciona as letras da linha até o ponto de inserção
-                    while (lyricIndex < lyricsLine.length && lyricIndex < startChordPosition) {
-                        processedLine += lyricsLine[lyricIndex];
-                        lyricIndex++;
-                    }
-
-                    // Insere o acorde no ponto correto
-                    processedLine += `[${chord}]`;
-                } else {
-                    chordPosition++;
-                }
+    </div>
+
+
+    <div id="toast-notification" class="toast"></div>
+
+    <div id="chord-diagram-tooltip" class="hidden absolute z-50 p-2 bg-gray-900 border border-gray-600 rounded-md shadow-lg pointer-events-none"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        /**
+         * Módulo Principal da Aplicação (Controller)
+         * Gerencia o estado geral, os elementos DOM e a inicialização dos outros módulos.
+         */
+        const App = {
+            state: {
+                originalLyrics: '',
+                originalKey: '',
+                usedChords: new Set(),
+            },
+            DOMElements: {},
+
+            init() {
+                this.cacheDOMElements();
+                
+                // Inicializa os outros módulos, passando a referência do App
+                HistoryModule.init(this);
+                UIModule.init(this);
+                FileModule.init(this);
+                ChordModule.init(this);
+                AutoScrollModule.init(this);
+                ChordDiagramModule.init(this);
+                
+                this.registerEventListeners();
+                
+                HistoryModule.saveState(true);
+                this.renderAll();
+            },
+
+            cacheDOMElements() {
+                this.DOMElements = {
+                    body: document.body, songTitle: document.getElementById('songTitle'), composer: document.getElementById('composer'), key: document.getElementById('key'), songLyrics: document.getElementById('songLyrics'), visor: document.getElementById('visor'), chordlist: document.getElementById('chordlist'), usedChordsList: document.getElementById('used-chords-list'), toast: document.getElementById('toast-notification'), novoArquivo: document.getElementById('novoArquivo'), importar: document.getElementById('importar'), importarArquivo: document.getElementById('importarArquivo'), exportar: document.getElementById('exportar'), chordPro: document.getElementById('chordPro'), limparCifra: document.getElementById('limparCifra'), restaurarTomOriginal: document.getElementById('restaurarTomOriginal'), desfazer: document.getElementById('desfazer'), refazer: document.getElementById('refazer'), themeToggle: document.getElementById('theme-toggle'), themeIconSun: document.getElementById('theme-icon-sun'), themeIconMoon: document.getElementById('theme-icon-moon'),
+                    helpBtn: document.getElementById('help-btn'), helpModal: document.getElementById('help-modal'), closeHelpModal: document.getElementById('close-help-modal'), helpModalBackdrop: document.getElementById('help-modal-backdrop'), mainElement: document.querySelector('main'), expandViewBtn: document.getElementById('expand-view-btn'), iconExpand: document.getElementById('icon-expand'), iconCollapse: document.getElementById('icon-collapse'),
+                    autoscrollControls: document.getElementById('autoscroll-controls'), playPauseBtn: document.getElementById('play-pause'), iconPlay: document.getElementById('icon-play'), iconPause: document.getElementById('icon-pause'), speedUpBtn: document.getElementById('speed-up'), speedDownBtn: document.getElementById('speed-down'), speedDisplay: document.getElementById('speed-display'),
+                    fontUpBtn: document.getElementById('font-up'), fontDownBtn: document.getElementById('font-down'),
+                    columnsBtn: document.getElementById('columns-btn'), columnsDisplay: document.getElementById('columns-display'),
+                    instrumentGuitarBtn: document.getElementById('instrument-guitar'), instrumentCavaquinhoBtn: document.getElementById('instrument-cavaquinho'), chordDiagramTooltip: document.getElementById('chord-diagram-tooltip'),
+                };
+            },
+
+            registerEventListeners() {
+                const { songTitle, composer, key, songLyrics, novoArquivo, importar, importarArquivo, exportar, chordPro, limparCifra, restaurarTomOriginal, desfazer, refazer, expandViewBtn, playPauseBtn, speedUpBtn, speedDownBtn, fontUpBtn, fontDownBtn, columnsBtn, instrumentGuitarBtn, instrumentCavaquinhoBtn, visor, usedChordsList } = this.DOMElements;
+                const debouncedRenderAndSave = UIModule.debounce(() => { HistoryModule.saveState(); this.renderAll(); }, 250);
+
+                songTitle.addEventListener('input', () => { songTitle.value = songTitle.value.toUpperCase(); this.renderAll(); });
+                composer.addEventListener('input', () => this.renderAll());
+                key.addEventListener('change', () => ChordModule.transposeSong());
+                songLyrics.addEventListener('input', debouncedRenderAndSave);
+                songLyrics.addEventListener('paste', (e) => FileModule.handlePaste(e));
+                
+                novoArquivo.addEventListener('click', () => FileModule.newFile());
+                importar.addEventListener('click', () => importarArquivo.click());
+                importarArquivo.addEventListener('change', (e) => FileModule.importFile(e));
+                exportar.addEventListener('click', () => FileModule.exportFile());
+
+                chordPro.addEventListener('click', () => ChordModule.convertToChordPro());
+                limparCifra.addEventListener('click', () => { songLyrics.value = songLyrics.value.replace(/\[.*?\]/g, ''); HistoryModule.saveState(true); this.renderAll(); });
+                
+                document.querySelector('.toolbars').addEventListener('click', (e) => { if (e.target.dataset.tagType) UIModule.handleTagInsertion(e.target.dataset.tagType); });
+                
+                restaurarTomOriginal.addEventListener('click', () => ChordModule.restoreOriginalKey());
+                desfazer.addEventListener('click', () => HistoryModule.undo());
+                refazer.addEventListener('click', () => HistoryModule.redo());
+                
+                expandViewBtn.addEventListener('click', () => UIModule.toggleExpandedView());
+                playPauseBtn.addEventListener('click', () => AutoScrollModule.toggleScroll());
+                speedUpBtn.addEventListener('click', () => AutoScrollModule.changeSpeed(1));
+                speedDownBtn.addEventListener('click', () => AutoScrollModule.changeSpeed(-1));
+                fontUpBtn.addEventListener('click', () => UIModule.changeFontSize(1));
+                fontDownBtn.addEventListener('click', () => UIModule.changeFontSize(-1));
+                columnsBtn.addEventListener('click', () => UIModule.toggleColumns());
+                instrumentGuitarBtn.addEventListener('click', () => ChordDiagramModule.setInstrument('guitar'));
+                instrumentCavaquinhoBtn.addEventListener('click', () => ChordDiagramModule.setInstrument('cavaquinho'));
+
+                const showChordDiagram = e => { if (e.target.matches('.chord-lookup')) ChordDiagramModule.show(e.target.dataset.chord, e); };
+                const hideChordDiagram = e => { if (e.target.matches('.chord-lookup')) ChordDiagramModule.hide(); };
+
+                visor.addEventListener('mouseover', showChordDiagram);
+                visor.addEventListener('mouseout', hideChordDiagram);
+                usedChordsList.addEventListener('mouseover', showChordDiagram);
+                usedChordsList.addEventListener('mouseout', hideChordDiagram);
+
+                document.addEventListener('keydown', e => {
+                    if (e.ctrlKey && e.key.toLowerCase() === 'z') { e.preventDefault(); HistoryModule.undo(); }
+                    if (e.ctrlKey && e.key.toLowerCase() === 'y') { e.preventDefault(); HistoryModule.redo(); }
+                });
+            },
+            
+            renderAll() {
+                UIModule.renderPreview();
+                ChordModule.parseAndDisplayUsedChords();
+            },
+
+            resetState() {
+                this.state.originalLyrics = '';
+                this.state.originalKey = '';
+                this.state.usedChords.clear();
+                this.DOMElements.songTitle.value = ''; 
+                this.DOMElements.composer.value = '';
+                this.DOMElements.key.value = '-';
+                this.DOMElements.songLyrics.value = '';
+                this.DOMElements.usedChordsList.innerHTML = '';
             }
-
-            // Adiciona o restante da linha de letras
-            processedLine += lyricsLine.slice(lyricIndex);
-            chordProLyrics += processedLine + '\n';
-            i += 2;
-        } else {
-            chordProLyrics += lines[i] + '\n';
-            i++;
-        }
-    }
-
-    textArea.value = chordProLyrics.trim();
-    salvarEstado();
-}
-
-
-
-// Validação da linha de acordes
-
-function isChordLine(line) {
-    // Conta acordes reconhecíveis em uma linha
-    const matches = line.match(/\b([A-G][#b]?((m|maj|min|sus|dim|aug)?\d*)?(\/[A-G][#b]?)?)\b/g);
-    if (!matches) return false;
-
-    const totalWords = line.trim().split(/\s+/).length;
-    const totalChords = matches.length;
-
-    // Considera linha de acordes se >70% dos "blocos" forem acordes
-    return totalChords / totalWords >= 0.7;
-}
-
-
-
-// CONVERSÃO DE COLAGEM EM CAIXA ALTA PRESERVANDO ACORDES
-
-document.getElementById('songLyrics').addEventListener('paste', function (event) {
-    event.preventDefault();
-
-    const pasteText = (event.clipboardData || window.clipboardData).getData('text');
-
-    // Quebra em linhas
-    const lines = pasteText.split('\n');
-
-    const convertedLines = lines.map(line => {
-        // Linha de acordes: mais de 70% dos tokens são acordes
-        const matches = line.match(/\b([A-G][#b]?(m|maj|min|dim|aug|sus)?\d*(\/[A-G][#b]?)?)\b/g);
-        const tokens = line.trim().split(/\s+/);
-        const ratio = matches && tokens.length ? matches.length / tokens.length : 0;
-
-        const isChordLine = ratio >= 0.7;
-
-        return isChordLine ? line : line.toUpperCase();
-    });
-
-    const convertedText = convertedLines.join('\n');
-
-    // Insere no ponto atual do cursor
-    const cursorPos = this.selectionStart;
-    const textBefore = this.value.substring(0, cursorPos);
-    const textAfter = this.value.substring(cursorPos);
-    this.value = textBefore + convertedText + textAfter;
-
-    // Reposiciona o cursor após inserção
-    this.setSelectionRange(cursorPos + convertedText.length, cursorPos + convertedText.length);
-});
-
-  
-// FUNÇÃO PARA CONVERSÃO DE CHORDPRO E CHORDOVER EM CAIXA ALTA
-
-function convertCaixaAlta() {
-  const textArea = document.getElementById('songLyrics');
-  const originalText = textArea.value;
-
-  // Tenta detectar se está no formato ChordPro ou ChordOver
-  const isLikelyChordPro = originalText.includes('[') && originalText.includes(']');
-
-  if (isLikelyChordPro) {
-    // === MODO CHORDPRO ===
-    // Divide a cifra em blocos: acordes, comandos e letras
-    const tokens = originalText.match(/(\[.*?\]|\{.*?\}|[^\[\]\{\}]+)/g);
-
-    if (!tokens) return;
-
-    const result = tokens.map(token => {
-      if (token.startsWith('[') && token.endsWith(']')) {
-        return token; // acorde, mantém
-      }
-      if (token.startsWith('{') && token.endsWith('}')) {
-        return token; // comando ChordPro, mantém
-      }
-      return token.toUpperCase(); // texto comum → caixa alta
-    });
-
-    textArea.value = result.join('');
-  } else {
-    // === MODO CHORD OVER ===
-    const lines = originalText.split('\n');
-    const processedLines = lines.map(line => {
-      const matches = line.match(/\b([A-G][#b]?(m|maj|min|dim|aug|sus)?\d*(\/[A-G][#b]?)?)\b/g);
-      const tokens = line.trim().split(/\s+/);
-      const ratio = matches && tokens.length ? matches.length / tokens.length : 0;
-      const isChordLine = ratio >= 0.7;
-      return isChordLine ? line : line.toUpperCase();
-    });
-
-    textArea.value = processedLines.join('\n');
-  }
-
-  salvarEstado();
-}
-
-
-// FUNÇÃO LISTA DE ACORDES
-
-        const acordes = {
-            C: ['C', 'C7', 'C7+', 'C°', 'C#', 'C#7', 'C#7+', 'C#°', 'C5', 'C5+', 'C6', 'C6/9', 'C#5', 'C#5+', 'C#6', 'C#6/9', 'C7/4', 'C7+/9', 'C7/9-', 'C7/9', 'C#7/4', 'C#7+/9', 'C#7/9-', 'C#7/9', 'C7/9+', 'C7/13-', 'C7/13', 'C7/13+', 'C#7/9+', 'C#7/13-', 'C#7/13', 'C#7/13+', 'C/E', 'C/G', 'C/Bb', 'C7/E', 'C#/F', 'C#/G#', 'C#/B', 'C#7/F', 'C7/G', 'Cm', 'Cm6', 'Cm7', 'C#7/G#', 'C#m', 'C#m6', 'C#m7', 'Cm5+', 'Cm7+', 'Cm9', 'Cm7/9', 'C#m5+', 'C#m7+', 'C#m9', 'C#m7/9', 'Cm7/5-', 'Cm/Eb', 'Cm/G', 'Cm/Bb', 'C#m7/5-', 'C#m/E', 'C#m/G#', 'C#m/B'], 
-
-D: ['D', 'D7', 'D7+', 'D°', 'D#', 'D#7', 'D#7+', 'D#°', 'D5', 'D5+', 'D6', 'D6/9', 'D#5', 'D#5+', 'D#6', 'D#6/9', 'D7/4', 'D7+/9', 'D7/9-', 'D7/9', 'D#7/4', 'D#7+/9', 'D#7/9-', 'D#7/9', 'D7/9+', 'D7/13-', 'D7/13', 'D7/13+','D#7/9+', 'D#7/13-', 'D#7/13', 'D#7/13+', 'D/F#', 'D/A', 'D/C', 'D7/F#', 'D#/G', 'D#/A#', 'D#/C', 'D#7/G', 'D7/A', 'Dm', 'Dm6', 'Dm7', 'D#7/A#', 'D#m', 'D#m6', 'D#m7', 'Dm5+', 'Dm7+', 'Dm9', 'Dm7/9', 'D#m5+', 'D#m7+', 'D#m9', 'D#m7/9', 'Dm7/5-', 'Dm/F', 'Dm/A', 'Dm/C', 'D#m7/5-', 'D#m/F#', 'D#m/A#', 'D#m/C#'], 
-
-E: ['E', 'E7', 'E7+', 'E°', 'Eb', 'Eb7', 'Eb7+', 'Eb°', 'E5', 'E5+', 'E6', 'E6/9', 'Eb5', 'Eb5+', 'Eb6', 'Eb6/9', 'E7/4', 'E7+/9', 'E7/9-', 'E7/9', 'Eb7/4', 'Eb7+/9', 'Eb7/9-', 'Eb7/9', 'E7/9+', 'E7/13-', 'E7/13', 'E7/13+', 'Eb7/9+', 'Eb7/13-', 'Eb7/13', 'Eb7/13+', 'E/G#', 'E/B', 'E/D', 'E7/G#', 'Eb/G', 'Eb/Bb', 'Eb/Db', 'Eb7/G', 'E7/B', 'Em', 'Em6', 'Em7', 'Eb7/Bb', 'Ebm', 'Ebm6', 'Ebm7', 'Em5+', 'Em7+', 'Em9', 'Em7/9', 'Ebm5+','Ebm7+', 'Ebm9', 'Ebm7/9', 'Em7/5-', 'Em/G', 'Em/B', 'Em/D', 'Ebm7/5-', 'Ebm/Gb', 'Ebm/Bb', 'Ebm/Db'],
-
-F: ['F', 'F7', 'F7+', 'F°', 'F#', 'F#7', 'F#7+', 'F#°', 'F5', 'F5+', 'F6', 'F6/9', 'F#5', 'F#5+', 'F#6', 'F#6/9', 'F7/4', 'F7+/9', 'F7/9-', 'F7/9', 'F#7/4', 'F#7+/9', 'F#7/9-', 'F#7/9', 'F7/9+', 'F7/13-', 'F7/13', 'F7/13+', 'F#7/9+', 'F#7/13-', 'F#7/13', 'F#7/13+', 'F/A', 'F/C', 'F/D', 'F7/A', 'F#/A#', 'F#/C#', 'F#/D#', 'F#7/A#', 'F7/C', 'Fm', 'Fm6', 'Fm7', 'F#7/C#', 'F#m', 'F#m6', 'F#m7', 'Fm5+', 'Fm7+', 'Fm9', 'Fm7/9', 'F#m5+','F#m7+', 'F#m9', 'F#m7/9', 'Fm7/5-', 'Fm/Ab', 'Fm/C', 'Fm/Eb', 'F#m7/5-', 'F#m/A', 'F#m/C#', 'F#m/E'],  
-
-G: ['G', 'G7', 'G7+', 'G°', 'G#', 'G#7', 'G#7+', 'G#°', 'G5', 'G5+', 'G6', 'G6/9', 'G#5', 'G#5+', 'G#6', 'G#6/9', 'G7/4', 'G7+/9', 'G7/9-', 'G7/9', 'G#7/4', 'G#7+/9', 'G#7/9-', 'G#7/9', 'G7/9+', 'G7/13-', 'G7/13', 'G7/13+', 'G#7/9+', 'G#7/13-', 'G#7/13', 'G#7/13+', 'G/B', 'G/D', 'G/F', 'G7/B', 'G#/C', 'G#/D#', 'G#/F', 'G#7/C', 'G7/D', 'Gm', 'Gm6', 'Gm7', 'G#7/D#', 'G#m', 'G#m6', 'G#m7', 'Gm5+', 'Gm7+', 'Gm9', 'Gm7/9', 'G#m5+','G#m7+', 'G#m9', 'G#m7/9', 'Gm7/5-', 'Gm/Bb', 'Gm/D', 'Gm/F', 'G#m7/5-', 'G#m/B', 'G#m/D#', 'G#m/F#'],
-
-A: ['A', 'A7', 'A7+', 'A°', 'A#', 'A#7', 'A#7+', 'A#°', 'A5', 'A5+', 'A6', 'A6/9', 'A#5', 'A#5+', 'A#6', 'A#6/9', 'A7/4', 'A7+/9', 'A7/9-', 'A7/9', 'A#7/4', 'A#7+/9', 'A#7/9-', 'A#7/9', 'A7/9+', 'A7/13-', 'A7/13', 'A7/13+', 'A#7/9+', 'A#7/13-', 'A#7/13', 'A#7/13+', 'A/C#', 'A/E', 'A/G', 'A7/C#', 'A#/D', 'A#/F', 'A#/G#', 'A#7/D', 'A7/E', 'Am', 'Am6', 'Am7', 'A#7/F', 'A#m', 'A#m6', 'A#m7', 'Am5+', 'Am7+', 'Am9',  'Am7/9', 'A#m5+','A#m7+', 'A#m9', 'A#m7/9', 'Am7/5-', 'Am/C', 'Am/E', 'Am/G', 'A#m7/5-', 'A#m/C#', 'A#m/F', 'A#m/G#'],
-
-B: ['B', 'B7', 'B7+', 'B°', 'Bb', 'Bb7', 'Bb7+', 'Bb°', 'B5', 'B5+', 'B6', 'B6/9', 'Bb5', 'Bb5+', 'Bb6', 'Bb6/9', 'B7/4', 'B7+/9', 'B7/9-', 'B7/9', 'Bb7/4', 'Bb7+/9', 'Bb7/9-', 'Bb7/9', 'B7/9+', 'B7/13-', 'B7/13', 'B7/13+', 'Bb7/9+', 'Bb7/13-', 'Bb7/13', 'Bb7/13+', 'B/D#', 'B/F#', 'B/A', 'B7/D#', 'Bb/D', 'Bb/F', 'Bb/Ab', 'Bb7/D', 'B7/F#', 'Bm', 'Bm6', 'Bm7', 'Bb7/F', 'Bbm', 'Bbm6', 'Bbm7', 'Bm5+', 'Bm7+', 'Bm9', 'Bm7/9', 'Bbm5+','Bbm7+', 'Bbm9', 'Bbm7/9', 'Bm7/5-', 'Bm/D', 'Bm/F#', 'Bm/A', 'Bbm7/5-', 'Bbm/Db', 'Bbm/F', 'Bbm/Ab'],
-
         };
 
-const textarea = document.getElementById('songLyrics');
-const chordlist = document.getElementById('chordlist');
-const usedChordsList = document.getElementById('used-chords-list');  
-const usedChordsArray = [];
+        /**
+         * Módulo de UI
+         * Responsável por todas as manipulações diretas do DOM, como renderização, modais e notificações.
+         */
+        const UIModule = {
+            fontSize: 14,
+            minFontSize: 10,
+            maxFontSize: 28,
+            columnCount: 1,
 
-textarea.addEventListener('keydown', function(e) {
-  if (e.shiftKey && /^[CDEFGABcdefgab]$/.test(e.key)) {
-    const ton = e.key.toUpperCase();
-    const acordeList = acordes[ton] || [];
+            init(app) { this.app = app; this.setupTheme(); this.setupHelpModal(); this.setupChordSelector(); this.initFontSize(); },
+            debounce: (func, delay) => { let timeout; return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), delay); }; },
+            showToast: (message, isError = false) => { const toast = App.DOMElements.toast; toast.textContent = message; toast.className = 'toast show'; toast.style.backgroundColor = isError ? '#dc2626' : '#16a34a'; setTimeout(() => { toast.className = 'toast'; }, 3000); },
+            
+            initFontSize() {
+                const savedSize = localStorage.getItem('recifra-fontsize');
+                if (savedSize) {
+                    this.fontSize = parseInt(savedSize, 10);
+                }
+                this.app.DOMElements.visor.style.fontSize = `${this.fontSize}px`;
+            },
 
-    chordlist.innerHTML = '';
-acordeList.forEach((acorde, index) => {
-    const button = document.createElement('button');
-    button.textContent = acorde;
+            changeFontSize(delta) {
+                const newSize = this.fontSize + delta; // Step é 1px
+                if (newSize >= this.minFontSize && newSize <= this.maxFontSize) {
+                    this.fontSize = newSize;
+                    this.app.DOMElements.visor.style.fontSize = `${this.fontSize}px`;
+                    localStorage.setItem('recifra-fontsize', this.fontSize);
+                }
+            },
 
-    const colunasPorLinha = 8;
-    const coluna = index % colunasPorLinha;
+            toggleColumns() {
+                this.columnCount = this.columnCount === 1 ? 2 : 1;
+                const { visor, columnsDisplay } = this.app.DOMElements;
+                
+                if (this.columnCount === 2) {
+                    visor.classList.add('columns-2');
+                } else {
+                    visor.classList.remove('columns-2');
+                }
+                columnsDisplay.textContent = `${this.columnCount}x`;
+            },
 
-    if (coluna < 4) {
-        button.classList.add('natural-chord');  // colunas 0,1,2,3
-    } else {
-        button.classList.add('altered-chord');  // colunas 4,5,6,7
-    }
+            resetColumns() {
+                this.columnCount = 1;
+                const { visor, columnsDisplay } = this.app.DOMElements;
+                visor.classList.remove('columns-2');
+                columnsDisplay.textContent = '1x';
+            },
+            
+            setupTheme() {
+                const savedTheme = localStorage.getItem('recifra-theme') || 'dark';
+                this.applyTheme(savedTheme);
+                this.app.DOMElements.themeToggle.addEventListener('click', () => {
+                    const newTheme = this.app.DOMElements.body.classList.contains('light') ? 'dark' : 'light';
+                    this.applyTheme(newTheme);
+                });
+            },
+            applyTheme(theme) {
+                const { body, themeIconSun, themeIconMoon } = this.app.DOMElements;
+                if (theme === 'light') { body.classList.add('light'); themeIconSun.classList.remove('hidden'); themeIconMoon.classList.add('hidden'); } 
+                else { body.classList.remove('light'); themeIconSun.classList.add('hidden'); themeIconMoon.classList.remove('hidden'); }
+                localStorage.setItem('recifra-theme', theme);
+            },
+            
+            setupHelpModal() {
+                const { helpBtn, helpModal, closeHelpModal, helpModalBackdrop } = this.app.DOMElements;
+                const open = () => helpModal.classList.remove('hidden');
+                const close = () => helpModal.classList.add('hidden');
+                helpBtn.addEventListener('click', open);
+                closeHelpModal.addEventListener('click', close);
+                helpModalBackdrop.addEventListener('click', close);
+            },
+            
+            setupChordSelector() {
+                const { songLyrics, chordlist } = this.app.DOMElements;
+                songLyrics.addEventListener('keydown', (e) => {
+                    if (e.shiftKey && /^[CDEFGABcdefgab]$/.test(e.key)) {
+                        e.preventDefault();
+                        const ton = e.key.toUpperCase();
+                        const acordeList = ChordModule.acordes[ton] || [];
+                        chordlist.innerHTML = '';
+                        acordeList.forEach((acorde, index) => {
+                            const button = document.createElement('button');
+                            button.textContent = acorde;
+                            button.className = (index % 8 < 4) ? 'natural-chord' : 'altered-chord';
+                            button.onclick = () => ChordModule.insertChord(acorde);
+                            chordlist.appendChild(button);
+                        });
+                        const coords = this.getCaretCoordinates(songLyrics, songLyrics.selectionStart);
+                        chordlist.style.top = `${coords.top + 20}px`;
+                        chordlist.style.left = `${coords.left}px`;
+                        chordlist.classList.remove('hidden');
+                    }
+                });
+                document.addEventListener('click', (e) => { if (!chordlist.contains(e.target) && e.target !== songLyrics) { chordlist.classList.add('hidden'); } });
+            },
 
-    button.addEventListener('click', function () {
-        inserirAcorde(acorde, textarea.selectionStart);
-        addUsedChord(acorde);
+            _renderLine(line, isChorus, currentTextfillColor) {
+                let lyricsLine = '', chordsLine = '', displayPos = 0, i = 0;
+                let chordsToRender = [];
+                let lineWithoutChords = line.replace(/\[([^\]]+)\]/g, '');
+
+                while (i < line.length) {
+                    if (line[i] === '[') {
+                        let end = line.indexOf(']', i);
+                        if (end !== -1) {
+                            const chord = line.substring(i + 1, end);
+                            chordsToRender.push({ text: chord, pos: displayPos });
+                            i = end + 1;
+                        } else {
+                            lyricsLine += line[i++];
+                            displayPos++;
+                        }
+                    } else {
+                        lyricsLine += line[i++];
+                        displayPos++;
+                    }
+                }
+
+                let chordsLineHtml = '';
+                let lastPos = 0;
+                chordsToRender.forEach(c => {
+                    chordsLineHtml += ' '.repeat(c.pos - lastPos);
+                    chordsLineHtml += `<span class="chord-lookup" data-chord="${c.text}">${c.text}</span>`;
+                    lastPos = c.pos;
+                });
+                
+                let finalLyricsHtml;
+                const upperTrimmedLine = line.trim().toUpperCase();
+
+                if (currentTextfillColor && lyricsLine.trim() !== '') {
+                    const isTagLine = ['BIS', 'REFRÃO', 'TRANSIÇÃO', 'OBSERVAÇÃO', 'CÔRO'].includes(upperTrimmedLine.replace(/\[.*?\]/g, ''));
+                    let style = `background-color: ${currentTextfillColor}; color: #1f2937; padding: 0 0.25rem; border-radius: 0.25rem;`;
+                    if (isTagLine) { style += ` font-weight: bold;`; }
+                    const styledContent = isChorus ? `<strong>${lyricsLine}</strong>` : lyricsLine;
+                    finalLyricsHtml = `<span style="${style}">${styledContent}</span>`;
+                } else {
+                    finalLyricsHtml = isChorus ? `<strong>${lyricsLine}</strong>` : lyricsLine;
+                }
+                
+                return `<div class="cpro_line"><div class="cpro_chords chord-color">${chordsLineHtml}</div><div class="cpro_lyrics text-main">${finalLyricsHtml}</div></div>`;
+            },
+
+            renderPreview() {
+                const { songTitle, composer, key, songLyrics, visor } = this.app.DOMElements;
+                const lines = songLyrics.value.split('\n');
+                let htmlContent = `<h3 class="font-bold text-lg mb-1 text-title">${songTitle.value || 'TÍTULO'} (${key.value !== '-' ? key.value : 'Tom'})</h3><p class="text-sm text-secondary mb-4">${composer.value || 'Composição'}</p>`;
+                
+                let inChorus = false;
+                let textfillColor = null;
+                let chorusLinesHtml = '';
+
+                const commitChorus = () => {
+                    if (chorusLinesHtml) {
+                        htmlContent += `<div class="chorus-section"><div class="section-label refrao">REFRÃO</div>${chorusLinesHtml}</div>`;
+                        chorusLinesHtml = '';
+                    }
+                };
+
+                lines.forEach(line => {
+                    const trimmedLine = line.trim();
+                    const upperTrimmedLine = trimmedLine.toUpperCase();
+
+                    if (upperTrimmedLine === '{C:CHORUS}') {
+                        commitChorus();
+                        inChorus = true;
+                        return;
+                    }
+                    if (upperTrimmedLine === '{C:}') {
+                        commitChorus();
+                        inChorus = false;
+                        return;
+                    }
+                    
+                    if (trimmedLine.toLowerCase().startsWith('{textfill:')) {
+                        textfillColor = trimmedLine.slice(10, -1).trim();
+                        return;
+                    }
+                    if (trimmedLine.toLowerCase() === '{textfill}') {
+                        textfillColor = null;
+                        return;
+                    }
+
+                    const lineHtml = this._renderLine(line, inChorus, textfillColor);
+
+                    if (inChorus) {
+                        chorusLinesHtml += lineHtml;
+                    } else {
+                        htmlContent += lineHtml;
+                    }
+                });
+
+                commitChorus(); 
+                visor.innerHTML = htmlContent;
+            },
+
+
+            addUsedChordButton(chord) {
+                const btn = document.createElement('button');
+                btn.textContent = chord;
+                btn.className = 'used-chord-btn text-xs font-bold py-2 px-2 rounded chord-lookup';
+                btn.dataset.chord = chord;
+                btn.onclick = () => ChordModule.insertChord(chord);
+                this.app.DOMElements.usedChordsList.appendChild(btn);
+            },
+            
+            toggleExpandedView() {
+                const { mainElement, iconExpand, iconCollapse, body } = this.app.DOMElements;
+                const isCollapsing = mainElement.classList.contains('view-expanded');
+
+                mainElement.classList.toggle('view-expanded');
+                body.classList.toggle('overflow-hidden');
+                iconExpand.classList.toggle('hidden');
+                iconCollapse.classList.toggle('hidden');
+
+                if (isCollapsing) {
+                    AutoScrollModule.reset();
+                    this.resetColumns();
+                }
+            },
+
+            handleTagInsertion(type) {
+                const textarea = this.app.DOMElements.songLyrics; const start = textarea.selectionStart; const end = textarea.selectionEnd; const selectedText = textarea.value.substring(start, end);
+                const sections = {
+                    refrao: `{C:Chorus}\n${selectedText || ''}\n{C:}`,
+                    coro: `{textfill: yellow}\n${selectedText || 'CÔRO'}\n{textfill}`,
+                    bis: `{textfill: #00ff00}\n${selectedText || 'BIS'}\n{textfill}`,
+                    tagRefrao: `{textfill: #00ffff}\n${selectedText || 'REFRÃO'}\n{textfill}`,
+                    transicao: `{textfill: #ffab44}\n${selectedText || 'TRANSIÇÃO'}\n{textfill}`,
+                    observacao: `{textfill: #ff9999}\n${selectedText || 'OBSERVAÇÃO'}\n{textfill}`,
+                };
+                let newText = sections[type];
+                if (!selectedText) {
+                    newText = `\n${newText}\n`;
+                }
+                textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end); 
+                textarea.selectionStart = textarea.selectionEnd = start + newText.length; 
+                textarea.focus(); 
+                HistoryModule.saveState(true); 
+                this.app.renderAll();
+            },
+            
+            getCaretCoordinates(element, position) {
+                const div = document.createElement("div"); const style = getComputedStyle(element); ['direction', 'boxSizing', 'width', 'height', 'overflowX', 'overflowY', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'fontStyle', 'fontVariant', 'fontWeight', 'fontStretch', 'fontSize', 'fontSizeAdjust', 'lineHeight', 'fontFamily', 'textAlign', 'textTransform', 'textIndent', 'textDecoration', 'letterSpacing', 'wordSpacing', 'tabSize', 'MozTabSize'].forEach(prop => { div.style[prop] = style[prop]; }); div.style.whiteSpace = "pre-wrap"; div.style.position = "absolute"; div.style.visibility = "hidden"; document.body.appendChild(div); const text = element.value.substring(0, position); const span = document.createElement("span"); span.textContent = element.value.substring(position) || "."; div.textContent = text; div.appendChild(span); const rect = element.getBoundingClientRect(); const coordinates = { top: rect.top + span.offsetTop - element.scrollTop + window.scrollY, left: rect.left + span.offsetLeft - element.scrollLeft + window.scrollX }; document.body.removeChild(div); return coordinates;
+            }
+        };
+
+        /**
+         * Módulo de Histórico
+         * Gerencia o estado de desfazer e refazer.
+         */
+        const HistoryModule = {
+            history: { undo: [], redo: [] },
+            limit: 50,
+            init(app) { this.app = app; },
+            saveState(force = false) {
+                const currentState = this.app.DOMElements.songLyrics.value;
+                const lastState = this.history.undo[this.history.undo.length - 1];
+                if (currentState !== lastState || force) {
+                    this.history.undo.push(currentState);
+                    this.history.redo = [];
+                    if (this.history.undo.length > this.limit) this.history.undo.shift();
+                }
+            },
+            undo() {
+                if (this.history.undo.length > 1) {
+                    this.history.redo.push(this.history.undo.pop());
+                    this.app.DOMElements.songLyrics.value = this.history.undo[this.history.undo.length - 1] || '';
+                    this.app.renderAll();
+                }
+            },
+            redo() {
+                if (this.history.redo.length > 0) {
+                    const nextState = this.history.redo.pop();
+                    this.history.undo.push(nextState);
+                    this.app.DOMElements.songLyrics.value = nextState;
+                    this.app.renderAll();
+                }
+            },
+            clear() { this.history = { undo: [], redo: [] }; }
+        };
+
+        /**
+         * Módulo de Acordes
+         * Contém toda a lógica de manipulação de acordes, transposição e conversão.
+         */
+        const ChordModule = {
+            acordes: { C: ['C', 'C7', 'C7+', 'C°', 'C#', 'C#7', 'C#7+', 'C#°', 'C5', 'C5+', 'C6', 'C6/9', 'C#5', 'C#5+', 'C#6', 'C#6/9', 'C7/4', 'C7+/9', 'C7/9-', 'C7/9', 'C#7/4', 'C#7+/9', 'C#7/9-', 'C#7/9', 'C7/9+', 'C7/13-', 'C7/13', 'C7/13+', 'C#7/9+', 'C#7/13-', 'C#7/13', 'C#7/13+', 'C/E', 'C/G', 'C/Bb', 'C7/E', 'C#/F', 'C#/G#', 'C#/B', 'C#7/F', 'C7/G', 'Cm', 'Cm6', 'Cm7', 'C#7/G#', 'C#m', 'C#m6', 'C#m7', 'Cm5+', 'Cm7+', 'Cm9', 'Cm7/9', 'C#m5+', 'C#m7+', 'C#m9', 'C#m7/9', 'Cm7/5-', 'Cm/Eb', 'Cm/G', 'Cm/Bb', 'C#m7/5-', 'C#m/E', 'C#m/G#', 'C#m/B'], D: ['D', 'D7', 'D7+', 'D°', 'D#', 'D#7', 'D#7+', 'D#°', 'D5', 'D5+', 'D6', 'D6/9', 'D#5', 'D#5+', 'D#6', 'D#6/9', 'D7/4', 'D7+/9', 'D7/9-', 'D7/9', 'D#7/4', 'D#7+/9', 'D#7/9-', 'D#7/9', 'D7/9+', 'D7/13-', 'D7/13', 'D7/13+','D#7/9+', 'D#7/13-', 'D#7/13', 'D#7/13+', 'D/F#', 'D/A', 'D/C', 'D7/F#', 'D#/G', 'D#/A#', 'D#/C', 'D#7/G', 'D7/A', 'Dm', 'Dm6', 'Dm7', 'D#7/A#', 'D#m', 'D#m6', 'D#m7', 'Dm5+', 'Dm7+', 'Dm9', 'Dm7/9', 'D#m5+', 'D#m7+', 'D#m9', 'D#m7/9', 'Dm7/5-', 'Dm/F', 'Dm/A', 'Dm/C', 'D#m7/5-', 'D#m/F#', 'D#m/A#', 'D#m/C#'], E: ['E', 'E7', 'E7+', 'E°', 'Eb', 'Eb7', 'Eb7+', 'Eb°', 'E5', 'E5+', 'E6', 'E6/9', 'Eb5', 'Eb5+', 'Eb6', 'Eb6/9', 'E7/4', 'E7+/9', 'E7/9-', 'E7/9', 'Eb7/4', 'Eb7+/9', 'Eb7/9-', 'Eb7/9', 'E7/9+', 'E7/13-', 'E7/13', 'E7/13+', 'Eb7/9+', 'Eb7/13-', 'Eb7/13', 'Eb7/13+', 'E/G#', 'E/B', 'E/D', 'E7/G#', 'Eb/G', 'Eb/Bb', 'Eb/Db', 'Eb7/G', 'E7/B', 'Em', 'Em6', 'Em7', 'Eb7/Bb', 'Ebm', 'Ebm6', 'Ebm7', 'Em5+', 'Em7+', 'Em9', 'Em7/9', 'Ebm5+','Ebm7+', 'Ebm9', 'Ebm7/9', 'Em7/5-', 'Em/G', 'Em/B', 'Em/D', 'Ebm7/5-', 'Ebm/Gb', 'Ebm/Bb', 'Ebm/Db'], F: ['F', 'F7', 'F7+', 'F°', 'F#', 'F#7', 'F#7+', 'F#°', 'F5', 'F5+', 'F6', 'F6/9', 'F#5', 'F#5+', 'F#6', 'F#6/9', 'F7/4', 'F7+/9', 'F7/9-', 'F7/9', 'F#7/4', 'F#7+/9', 'F#7/9-', 'F#7/9', 'F7/9+', 'F7/13-', 'F7/13', 'F7/13+', 'F#7/9+', 'F#7/13-', 'F#7/13', 'F#7/13+', 'F/A', 'F/C', 'F/D', 'F7/A', 'F#/A#', 'F#/C#', 'F#/D#', 'F#7/A#', 'F7/C', 'Fm', 'Fm6', 'Fm7', 'F#7/C#', 'F#m', 'F#m6', 'F#m7', 'Fm5+', 'Fm7+', 'Fm9', 'Fm7/9', 'F#m5+','F#m7+', 'F#m9', 'F#m7/9', 'Fm7/5-', 'Fm/Ab', 'Fm/C', 'Fm/Eb', 'F#m7/5-', 'F#m/A', 'F#m/C#', 'F#m/E'], G: ['G', 'G7', 'G7+', 'G°', 'G#', 'G#7', 'G#7+', 'G#°', 'G5', 'G5+', 'G6', 'G6/9', 'G#5', 'G#5+', 'G#6', 'G#6/9', 'G7/1', 'G7+/9', 'G7/9-', 'G7/9', 'G#7/4', 'G#7+/9', 'G#7/9-', 'G#7/9', 'G7/9+', 'G7/13-', 'G7/13', 'G7/13+', 'G#7/9+', 'G#7/13-', 'G#7/13', 'G#7/13+', 'G/B', 'G/D', 'G/F', 'G7/B', 'G#/C', 'G#/D#', 'G#/F', 'G#7/C', 'G7/D', 'Gm', 'Gm6', 'Gm7', 'G#7/D#', 'G#m', 'G#m6', 'G#m7', 'Gm5+', 'Gm7+', 'Gm9', 'Gm7/9', 'G#m5+','G#m7+', 'G#m9', 'G#m7/9', 'Gm7/5-', 'Gm/Bb', 'Gm/D', 'Gm/F', 'G#m7/5-', 'G#m/B', 'G#m/D#', 'G#m/F#'], A: ['A', 'A7', 'A7+', 'A°', 'A#', 'A#7', 'A#7+', 'A#°', 'A5', 'A5+', 'A6', 'A6/9', 'A#5', 'A#5+', 'A#6', 'A#6/9', 'A7/4', 'A7+/9', 'A7/9-', 'A7/9', 'A#7/4', 'A#7+/9', 'A#7/9-', 'A#7/9', 'A7/9+', 'A7/13-', 'A7/13', 'A7/13+', 'A#7/9+', 'A#7/13-', 'A#7/13', 'A#7/13+', 'A/C#', 'A/E', 'A/G', 'A7/C#', 'A#/D', 'A#/F', 'A#/G#', 'A#7/D', 'A7/E', 'Am', 'Am6', 'Am7', 'A#7/F', 'A#m', 'A#m6', 'A#m7', 'Am5+', 'Am7+', 'Am9', 'Am7/9', 'A#m5+','A#m7+', 'A#m9', 'A#m7/9', 'Am7/5-', 'Am/C', 'Am/E', 'Am/G', 'A#m7/5-', 'A#m/C#', 'A#m/F', 'A#m/G#'], B: ['B', 'B7', 'B7+', 'B°', 'Bb', 'Bb7', 'Bb7+', 'Bb°', 'B5', 'B5+', 'B6', 'B6/9', 'Bb5', 'Bb5+', 'Bb6', 'Bb6/9', 'B7/4', 'B7+/9', 'B7/9-', 'B7/9', 'Bb7/4', 'Bb7+/9', 'Bb7/9-', 'Bb7/9', 'B7/9+', 'B7/13-', 'B7/13', 'B7/13+', 'Bb7/9+', 'Bb7/13-', 'Bb7/13', 'Bb7/13+', 'B/D#', 'B/F#', 'B/A', 'B7/D#', 'Bb/D', 'Bb/F', 'Bb/Ab', 'Bb7/D', 'B7/F#', 'Bm', 'Bm6', 'Bm7', 'Bb7/F', 'Bbm', 'Bbm6', 'Bbm7', 'Bm5+', 'Bm7+', 'Bm9', 'Bm7/9', 'Bbm5+','Bbm7+', 'Bbm9', 'Bbm7/9', 'Bm7/5-', 'Bm/D', 'Bm/F#', 'Bm/A', 'Bbm7/5-', 'Bbm/Db', 'Bbm/F', 'Bbm/Ab'], },
+            semitoneMap: { 'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3, 'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8, 'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11, 'Cm': 0, 'C#m': 1, 'Dbm': 1, 'Dm': 2, 'D#m': 3, 'Ebm': 3, 'Em': 4, 'Fm': 5, 'F#m': 6, 'Gbm': 6, 'Gm': 7, 'G#m': 8, 'Abm': 8, 'Am': 9, 'A#m': 10, 'Bbm': 10, 'Bm': 11 },
+            chordOrder: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+            init(app) { this.app = app; },
+
+            insertChord(chord) {
+                const textarea = this.app.DOMElements.songLyrics;
+                const start = textarea.selectionStart; const end = textarea.selectionEnd;
+                textarea.value = textarea.value.substring(0, start) + `[${chord}]` + textarea.value.substring(end);
+                textarea.selectionStart = textarea.selectionEnd = start + chord.length + 2;
+                textarea.focus();
+                this.app.DOMElements.chordlist.classList.add('hidden');
+                HistoryModule.saveState(true);
+                this.app.renderAll();
+            },
+
+            parseAndDisplayUsedChords() {
+                const { songLyrics, usedChordsList } = this.app.DOMElements;
+                const chordsInText = songLyrics.value.match(/\[([^\]]+)\]/g) || [];
+                const currentChords = new Set(chordsInText.map(c => c.slice(1, -1)));
+                
+                this.app.state.usedChords = currentChords;
+                usedChordsList.innerHTML = '';
+                this.app.state.usedChords.forEach(chord => UIModule.addUsedChordButton(chord));
+            },
+
+            isChordLine(line) {
+                const trimmed = line.trim();
+                if (!trimmed) return false;
+                // Regex aprimorado para validar acordes de forma mais robusta.
+                const chordRegex = /^[A-G](b|#)?(m|maj|min|dim|aug|sus|add|M|º|°)?\d*(\/[A-G](b|#)?)?(\(.*\))?$/i;
+                const words = trimmed.split(/\s+/).filter(w => w);
+                // Uma linha de acordes deve conter *apenas* palavras que parecem acordes.
+                return words.length > 0 && words.every(word => chordRegex.test(word));
+            },
+
+            convertToChordPro() {
+                const textarea = this.app.DOMElements.songLyrics;
+                const lines = textarea.value.split('\n');
+                let pro = '';
+                for (let i = 0; i < lines.length; i++) {
+                    const cLine = lines[i];
+                    const nLine = (i + 1 < lines.length) ? lines[i + 1] : null;
+                    if (this.isChordLine(cLine) && nLine && nLine.trim() !== '' && !this.isChordLine(nLine)) {
+                        let merged = nLine;
+                        const chords = [];
+                        const regex = /\S+/g; 
+                        let match;
+                        while ((match = regex.exec(cLine)) !== null) {
+                            chords.push({ text: `[${match[0]}]`, index: match.index });
+                        }
+                        for (let j = chords.length - 1; j >= 0; j--) {
+                            const { text, index } = chords[j];
+                            merged = merged.substring(0, index) + text + merged.substring(index);
+                        }
+                        pro += merged + '\n';
+                        i++; // Pula a próxima linha, pois já foi mesclada
+                    } else {
+                        pro += cLine + '\n';
+                    }
+                }
+                textarea.value = pro.trim();
+                HistoryModule.saveState(true);
+                this.app.renderAll();
+            },
+
+            transposeChord(chord, interval) {
+                const chordParts = chord.split('/');
+                if (chordParts.length === 2) {
+                    const mainChordStr = chordParts[0];
+                    const bassNoteStr = chordParts[1];
+                    const bassNoteRegex = /^[A-G][#b]?/;
+                    const bassMatch = bassNoteStr.match(bassNoteRegex);
+
+                    if (bassMatch) {
+                        const mainNoteRegex = /^([A-G][#b]?)(.*)$/;
+                        const mainMatch = mainChordStr.match(mainNoteRegex);
+                        if (mainMatch) {
+                            const [, mainNote, suffix] = mainMatch;
+                            
+                            const transposeSingleNote = (note) => {
+                                const noteIndex = this.semitoneMap[note];
+                                if (noteIndex === undefined) return note;
+                                const newNoteIndex = (noteIndex + interval + 12) % 12;
+                                return this.chordOrder[newNoteIndex];
+                            };
+
+                            const newMainNote = transposeSingleNote(mainNote);
+                            const newBassNote = transposeSingleNote(bassMatch[0]);
+                            
+                            const bassSuffix = bassNoteStr.substring(bassMatch[0].length);
+                            return newMainNote + suffix + '/' + newBassNote + bassSuffix;
+                        }
+                    }
+                }
+
+                // Fallback for simple chords or chords like E7/9 where /9 is a suffix
+                const mainNoteRegex = /^([A-G][#b]?)(.*)$/;
+                const mainMatch = chord.match(mainNoteRegex);
+                if (!mainMatch) return chord;
+
+                const [, mainNote, suffix] = mainMatch;
+                const mainNoteIndex = this.semitoneMap[mainNote];
+                if (mainNoteIndex === undefined) return chord;
+                
+                const newMainNoteIndex = (mainNoteIndex + interval + 12) % 12;
+                return this.chordOrder[newMainNoteIndex] + suffix;
+            },
+
+            detectKey(chords) {
+                if (!chords || chords.length === 0) return 'C';
+                const chordCounts = {};
+                chords.forEach(chord => {
+                    let match = chord.replace(/[\[\]]/g, '').match(/^([A-G][#b]?m?)/);
+                    if (match && this.semitoneMap.hasOwnProperty(match[1])) {
+                        const root = match[1];
+                        chordCounts[root] = (chordCounts[root] || 0) + 1;
+                    }
+                });
+                if (Object.keys(chordCounts).length === 0) return 'C';
+                return Object.keys(chordCounts).reduce((a, b) => chordCounts[a] > chordCounts[b] ? a : b);
+            },
+
+            transposeSong() {
+                const { songLyrics, key } = this.app.DOMElements;
+                const selectedKey = key.value;
+                const songText = this.app.state.originalLyrics || songLyrics.value;
+                const songChords = songText.match(/\[([^\]]+)\]/g);
+                
+                if (!songChords || selectedKey === '-') return;
+                
+                const currentKey = this.app.state.originalKey || this.detectKey(songChords);
+                if (!this.app.state.originalLyrics) {
+                    this.app.state.originalLyrics = songLyrics.value;
+                    this.app.state.originalKey = currentKey;
+                }
+                
+                const interval = this.semitoneMap[selectedKey] - this.semitoneMap[currentKey];
+                if (isNaN(interval)) return;
+                
+                songLyrics.value = songText.replace(/\[([^\]]+)\]/g, (_, chord) => `[${this.transposeChord(chord, interval)}]`);
+                HistoryModule.saveState(true);
+                this.app.renderAll();
+            },
+            
+            restoreOriginalKey() {
+                if (this.app.state.originalLyrics) {
+                    this.app.DOMElements.songLyrics.value = this.app.state.originalLyrics;
+                    this.app.DOMElements.key.value = this.app.state.originalKey;
+                    this.app.state.originalLyrics = '';
+                    this.app.state.originalKey = '';
+                    HistoryModule.saveState(true);
+                    this.app.renderAll();
+                    UIModule.showToast("Tom original restaurado.");
+                } else {
+                    UIModule.showToast("Nenhuma transposição foi feita.", true);
+                }
+            }
+        };
+
+        /**
+         * Módulo de Rolagem Automática
+         * Gerencia a funcionalidade de auto-scroll na visualização expandida.
+         */
+        const AutoScrollModule = {
+            isScrolling: false,
+            scrollSpeed: 5, // Velocidade padrão
+            scrollIntervalId: null,
+            minSpeed: 1,
+            maxSpeed: 10,
+
+            init(app) {
+                this.app = app;
+                this.updateSpeedDisplay();
+            },
+
+            toggleScroll() {
+                this.isScrolling = !this.isScrolling;
+                if (this.isScrolling) {
+                    this.startScroll();
+                } else {
+                    this.stopScroll();
+                }
+            },
+
+            startScroll() {
+                const { visor, iconPlay, iconPause } = this.app.DOMElements;
+                if (visor.scrollTop >= visor.scrollHeight - visor.clientHeight) {
+                    visor.scrollTop = 0; // Reinicia se já estiver no final
+                }
+
+                this.isScrolling = true;
+                iconPlay.classList.add('hidden');
+                iconPause.classList.remove('hidden');
+
+                const interval = 1000 / (this.scrollSpeed * 5); // Ajuste a sensibilidade aqui
+                this.scrollIntervalId = setInterval(() => {
+                    visor.scrollTop += 1;
+                    if (visor.scrollTop >= visor.scrollHeight - visor.clientHeight) {
+                        this.stopScroll();
+                    }
+                }, interval);
+            },
+
+            stopScroll() {
+                if (this.scrollIntervalId) {
+                    clearInterval(this.scrollIntervalId);
+                    this.scrollIntervalId = null;
+                }
+                this.isScrolling = false;
+                this.app.DOMElements.iconPlay.classList.remove('hidden');
+                this.app.DOMElements.iconPause.classList.add('hidden');
+            },
+            
+            reset() { // Chamado ao sair da visualização expandida
+                this.stopScroll();
+                this.app.DOMElements.visor.scrollTop = 0; // Reseta a posição do scroll
+            },
+
+            changeSpeed(delta) {
+                const newSpeed = this.scrollSpeed + delta;
+                if (newSpeed >= this.minSpeed && newSpeed <= this.maxSpeed) {
+                    this.scrollSpeed = newSpeed;
+                    this.updateSpeedDisplay();
+                    if (this.isScrolling) {
+                        // Reinicia a rolagem com a nova velocidade
+                        this.stopScroll();
+                        this.startScroll();
+                    }
+                }
+            },
+
+            updateSpeedDisplay() {
+                this.app.DOMElements.speedDisplay.textContent = this.scrollSpeed;
+            }
+        };
+
+        /**
+         * Módulo de Dicionário de Acordes
+         * Gerencia a exibição de diagramas de acordes.
+         */
+        const ChordDiagramModule = {
+            currentInstrument: 'guitar',
+            chordData: {
+                guitar: {
+                    // Major Chords
+                    'C': { frets: [-1, 3, 2, 0, 1, 0] }, 'C#': { baseFret: 4, frets: [-1, 4, 6, 6, 6, 4] }, 'Db': { baseFret: 4, frets: [-1, 4, 6, 6, 6, 4] },
+                    'D': { frets: [-1, -1, 0, 2, 3, 2] }, 'D#': { baseFret: 6, frets: [-1, 6, 8, 8, 8, 6] }, 'Eb': { baseFret: 6, frets: [-1, 6, 8, 8, 8, 6] },
+                    'E': { frets: [0, 2, 2, 1, 0, 0] }, 'F': { frets: [1, 3, 3, 2, 1, 1] }, 'F#': { frets: [2, 4, 4, 3, 2, 2] }, 'Gb': { frets: [2, 4, 4, 3, 2, 2] },
+                    'G': { frets: [3, 2, 0, 0, 0, 3] }, 'G#': { baseFret: 4, frets: [4, 6, 6, 5, 4, 4] }, 'Ab': { baseFret: 4, frets: [4, 6, 6, 5, 4, 4] },
+                    'A': { frets: [-1, 0, 2, 2, 2, 0] }, 'A#': { baseFret: 1, frets: [-1, 1, 3, 3, 3, 1] }, 'Bb': { baseFret: 1, frets: [-1, 1, 3, 3, 3, 1] },
+                    'B': { baseFret: 2, frets: [-1, 2, 4, 4, 4, 2] },
+                    // Minor Chords
+                    'Cm': { baseFret: 3, frets: [-1, 3, 5, 5, 4, 3] }, 'C#m': { baseFret: 4, frets: [-1, 4, 6, 6, 5, 4] }, 'Dbm': { baseFret: 4, frets: [-1, 4, 6, 6, 5, 4] },
+                    'Dm': { frets: [-1, -1, 0, 2, 3, 1] }, 'D#m': { baseFret: 6, frets: [-1, 6, 8, 8, 7, 6] }, 'Ebm': { baseFret: 6, frets: [-1, 6, 8, 8, 7, 6] },
+                    'Em': { frets: [0, 2, 2, 0, 0, 0] }, 'Fm': { baseFret: 1, frets: [1, 3, 3, 1, 1, 1] }, 'F#m': { frets: [2, 4, 4, 2, 2, 2] }, 'Gbm': { frets: [2, 4, 4, 2, 2, 2] },
+                    'Gm': { baseFret: 3, frets: [3, 5, 5, 3, 3, 3] }, 'G#m': { baseFret: 4, frets: [4, 6, 6, 4, 4, 4] }, 'Abm': { baseFret: 4, frets: [4, 6, 6, 4, 4, 4] },
+                    'Am': { frets: [-1, 0, 2, 2, 1, 0] }, 'A#m': { baseFret: 1, frets: [-1, 1, 3, 3, 2, 1] }, 'Bbm': { baseFret: 1, frets: [-1, 1, 3, 3, 2, 1] },
+                    'Bm': { baseFret: 2, frets: [-1, 2, 4, 4, 3, 2] },
+                    // 7th Chords
+                    'C7': { frets: [-1, 3, 2, 3, 1, 0] }, 'C#7': { baseFret: 4, frets: [-1, 4, 6, 4, 6, 4] }, 'Db7': { baseFret: 4, frets: [-1, 4, 6, 4, 6, 4] },
+                    'D7': { frets: [-1, -1, 0, 2, 1, 2] }, 'D#7': { baseFret: 6, frets: [-1, 6, 8, 6, 8, 6] }, 'Eb7': { baseFret: 6, frets: [-1, 6, 8, 6, 8, 6] },
+                    'E7': { frets: [0, 2, 0, 1, 0, 0] }, 'F7': { baseFret: 1, frets: [1, 3, 1, 2, 1, 1] }, 'F#7': { frets: [2, 4, 2, 3, 2, 2] }, 'Gb7': { frets: [2, 4, 2, 3, 2, 2] },
+                    'G7': { frets: [3, 2, 0, 0, 0, 1] }, 'G#7': { baseFret: 4, frets: [4, 6, 4, 5, 4, 4] }, 'Ab7': { baseFret: 4, frets: [4, 6, 4, 5, 4, 4] },
+                    'A7': { frets: [-1, 0, 2, 0, 2, 0] }, 'A#7': { baseFret: 1, frets: [-1, 1, 3, 1, 3, 1] }, 'Bb7': { baseFret: 1, frets: [-1, 1, 3, 1, 3, 1] },
+                    'B7': { frets: [-1, 2, 1, 2, 0, 2] },
+                },
+                cavaquinho: { // Afinação Re-Si-Sol-Re (D-B-G-D)
+                    // Major Chords
+                    'C': { frets: [2, 1, 2, 0] }, 'C#': { frets: [3, 2, 3, 1] }, 'Db': { frets: [3, 2, 3, 1] },
+                    'D': { frets: [0, 3, 0, 2] }, 'D#': { frets: [1, 4, 1, 3] }, 'Eb': { frets: [1, 4, 1, 3] },
+                    'E': { frets: [2, 1, 0, 2] }, 'F': { frets: [3, 2, 1, 3] }, 'F#': { frets: [4, 3, 2, 4] }, 'Gb': { frets: [4, 3, 2, 4] },
+                    'G': { frets: [0, 0, 0, 2] }, 'G#': { frets: [1, 1, 1, 3] }, 'Ab': { frets: [1, 1, 1, 3] },
+                    'A': { frets: [2, 2, 2, 4] }, 'A#': { frets: [3, 3, 3, 5] }, 'Bb': { frets: [3, 3, 3, 5] },
+                    'B': { frets: [4, 4, 4, 6] },
+                    // Minor Chords
+                    'Cm': { frets: [2, 1, 2, 2] }, 'C#m': { frets: [3, 2, 3, 3] }, 'Dbm': { frets: [3, 2, 3, 3] },
+                    'Dm': { frets: [0, 2, 0, 1] }, 'D#m': { frets: [1, 3, 1, 2] }, 'Ebm': { frets: [1, 3, 1, 2] },
+                    'Em': { frets: [2, 0, 0, 2] }, 'Fm': { frets: [3, 1, 1, 3] }, 'F#m': { frets: [4, 2, 2, 4] }, 'Gbm': { frets: [4, 2, 2, 4] },
+                    'Gm': { frets: [0, 3, 3, 1] }, 'G#m': { frets: [1, 4, 4, 3] }, 'Abm': { frets: [1, 4, 4, 3] },
+                    'Am': { frets: [2, 0, 0, 0] }, 'A#m': { frets: [3, 1, 1, 1] }, 'Bbm': { frets: [3, 1, 1, 1] },
+                    'Bm': { frets: [4, 2, 2, 2] },
+                    // 7th Chords
+                    'C7': { frets: [2, 1, 2, 3] }, 'C#7': { frets: [3, 2, 3, 4] }, 'Db7': { frets: [3, 2, 3, 4] },
+                    'D7': { frets: [0, 1, 0, 2] }, 'D#7': { frets: [1, 2, 1, 3] }, 'Eb7': { frets: [1, 2, 1, 3] },
+                    'E7': { frets: [2, 0, 0, 0] }, 'F7': { frets: [3, 1, 1, 1] }, 'F#7': { frets: [4, 2, 2, 2] }, 'Gb7': { frets: [4, 2, 2, 2] },
+                    'G7': { frets: [0, 0, 0, 0] }, 'G#7': { frets: [1, 1, 1, 1] }, 'Ab7': { frets: [1, 1, 1, 1] },
+                    'A7': { frets: [2, 2, 2, 2] }, 'A#7': { frets: [3, 3, 3, 3] }, 'Bb7': { frets: [3, 3, 3, 3] },
+                    'B7': { frets: [1, 2, 2, 2] },
+                }
+            },
+            
+            init(app) {
+                this.app = app;
+                const savedInstrument = localStorage.getItem('recifra-instrument') || 'guitar';
+                this.setInstrument(savedInstrument);
+            },
+
+            setInstrument(instrumentName) {
+                this.currentInstrument = instrumentName;
+                const { instrumentGuitarBtn, instrumentCavaquinhoBtn } = this.app.DOMElements;
+                if (instrumentName === 'guitar') {
+                    instrumentGuitarBtn.classList.add('active');
+                    instrumentCavaquinhoBtn.classList.remove('active');
+                } else {
+                    instrumentGuitarBtn.classList.remove('active');
+                    instrumentCavaquinhoBtn.classList.add('active');
+                }
+                localStorage.setItem('recifra-instrument', instrumentName);
+            },
+
+            show(chordName, event) {
+                const chordInfo = this.chordData[this.currentInstrument][chordName];
+                if (!chordInfo) return;
+
+                const { chordDiagramTooltip } = this.app.DOMElements;
+                chordDiagramTooltip.innerHTML = '';
+                const svg = this._drawDiagram(chordName, chordInfo);
+                chordDiagramTooltip.appendChild(svg);
+                
+                chordDiagramTooltip.classList.remove('hidden');
+                let x = event.pageX + 15;
+                let y = event.pageY + 15;
+                if (x + chordDiagramTooltip.offsetWidth > window.innerWidth) {
+                    x = event.pageX - chordDiagramTooltip.offsetWidth - 15;
+                }
+                if (y + chordDiagramTooltip.offsetHeight > window.innerHeight) {
+                    y = event.pageY - chordDiagramTooltip.offsetHeight - 15;
+                }
+                chordDiagramTooltip.style.left = `${x}px`;
+                chordDiagramTooltip.style.top = `${y}px`;
+            },
+
+            hide() {
+                this.app.DOMElements.chordDiagramTooltip.classList.add('hidden');
+            },
+
+            _drawDiagram(chordName, chordInfo) {
+                const isLight = this.app.DOMElements.body.classList.contains('light');
+                const colors = {
+                    line: isLight ? '#9ca3af' : '#6b7280',
+                    text: isLight ? '#1f2937' : '#d1d5db',
+                    dot: isLight ? '#111827' : '#e5e7eb',
+                };
+                const baseFret = chordInfo.baseFret || 1;
+                const frets = chordInfo.frets;
+                const numStrings = this.currentInstrument === 'guitar' ? 6 : 4;
+                const numFrets = 4;
+                const stringSpacing = 12;
+                const fretSpacing = 15;
+                const dotRadius = 4;
+                const paddingTop = 30;
+                const paddingLeft = 10;
+                
+                const width = (numStrings - 1) * stringSpacing + paddingLeft * 2;
+                const height = numFrets * fretSpacing + paddingTop + 15;
+                
+                const svgNS = "http://www.w3.org/2000/svg";
+                const svg = document.createElementNS(svgNS, 'svg');
+                svg.setAttribute('width', width);
+                svg.setAttribute('height', height);
+
+                // Title
+                const title = document.createElementNS(svgNS, 'text');
+                title.setAttribute('x', width / 2);
+                title.setAttribute('y', 15);
+                title.setAttribute('font-size', '12px');
+                title.setAttribute('font-weight', 'bold');
+                title.setAttribute('fill', colors.text);
+                title.setAttribute('text-anchor', 'middle');
+                title.textContent = chordName;
+                svg.appendChild(title);
+                
+                // Base Fret
+                if (baseFret > 1) {
+                    const fretNum = document.createElementNS(svgNS, 'text');
+                    fretNum.setAttribute('x', paddingLeft - 8);
+                    fretNum.setAttribute('y', paddingTop + fretSpacing * 0.5 + 4);
+                    fretNum.setAttribute('font-size', '10px');
+                    fretNum.setAttribute('fill', colors.text);
+                    fretNum.setAttribute('text-anchor', 'middle');
+                    fretNum.textContent = baseFret;
+                    svg.appendChild(fretNum);
+                }
+
+                // Frets
+                for (let i = 0; i <= numFrets; i++) {
+                    const line = document.createElementNS(svgNS, 'line');
+                    line.setAttribute('x1', paddingLeft);
+                    line.setAttribute('y1', paddingTop + i * fretSpacing);
+                    line.setAttribute('x2', width - paddingLeft);
+                    line.setAttribute('y2', paddingTop + i * fretSpacing);
+                    line.setAttribute('stroke', colors.line);
+                    line.setAttribute('stroke-width', i === 0 && baseFret === 1 ? '3' : '1');
+                    svg.appendChild(line);
+                }
+                
+                // Strings
+                for (let i = 0; i < numStrings; i++) {
+                    const line = document.createElementNS(svgNS, 'line');
+                    line.setAttribute('x1', paddingLeft + i * stringSpacing);
+                    line.setAttribute('y1', paddingTop);
+                    line.setAttribute('x2', paddingLeft + i * stringSpacing);
+                    line.setAttribute('y2', paddingTop + numFrets * fretSpacing);
+                    line.setAttribute('stroke', colors.line);
+                    svg.appendChild(line);
+                }
+                
+                // Dots, Open/Muted strings
+                for (let i = 0; i < numStrings; i++) {
+                    const fret = frets[i];
+                    const stringX = paddingLeft + i * stringSpacing;
+                    
+                    if (fret === -1) { // Muted string
+                        const x1 = document.createElementNS(svgNS, 'line');
+                        const x2 = document.createElementNS(svgNS, 'line');
+                        Object.assign(x1.style, { stroke: colors.text, strokeWidth: '1.5px' });
+                        Object.assign(x2.style, { stroke: colors.text, strokeWidth: '1.5px' });
+                        x1.setAttribute('x1', stringX - 3); x1.setAttribute('y1', paddingTop - 12);
+                        x1.setAttribute('x2', stringX + 3); x1.setAttribute('y2', paddingTop - 6);
+                        x2.setAttribute('x1', stringX - 3); x2.setAttribute('y1', paddingTop - 6);
+                        x2.setAttribute('x2', stringX + 3); x2.setAttribute('y2', paddingTop - 12);
+                        svg.appendChild(x1);
+                        svg.appendChild(x2);
+                    } else if (fret === 0) { // Open string
+                        const circle = document.createElementNS(svgNS, 'circle');
+                        circle.setAttribute('cx', stringX);
+                        circle.setAttribute('cy', paddingTop - 9);
+                        circle.setAttribute('r', 2.5);
+                        circle.setAttribute('stroke', colors.text);
+                        circle.setAttribute('stroke-width', '1');
+                        circle.setAttribute('fill', 'none');
+                        svg.appendChild(circle);
+                    } else { // Fingered note
+                        const fretPos = fret - (baseFret - 1);
+                        const dotY = paddingTop + fretPos * fretSpacing - (fretSpacing / 2);
+                        const circle = document.createElementNS(svgNS, 'circle');
+                        circle.setAttribute('cx', stringX);
+                        circle.setAttribute('cy', dotY);
+                        circle.setAttribute('r', dotRadius);
+                        circle.setAttribute('fill', colors.dot);
+                        svg.appendChild(circle);
+                    }
+                }
+                return svg;
+            }
+        };
+
+        /**
+         * Módulo de Arquivos
+         * Gerencia importação, exportação e manipulação de texto colado.
+         */
+        const FileModule = {
+            init(app) { this.app = app; },
+
+            newFile() {
+                this.app.resetState();
+                HistoryModule.clear();
+                HistoryModule.saveState(true);
+                this.app.renderAll();
+            },
+
+            handlePaste(event) {
+                event.preventDefault();
+                const pastedText = (event.clipboardData || window.clipboardData).getData('text');
+                const processedText = this.processTextForUppercase(pastedText);
+                const textarea = this.app.DOMElements.songLyrics;
+                const start = textarea.selectionStart; const end = textarea.selectionEnd;
+                textarea.value = textarea.value.substring(0, start) + processedText + textarea.value.substring(end);
+                textarea.selectionStart = textarea.selectionEnd = start + processedText.length;
+                const debouncedRenderAndSave = UIModule.debounce(() => { HistoryModule.saveState(); this.app.renderAll(); }, 250);
+                debouncedRenderAndSave();
+            },
+
+            processTextForUppercase(text) {
+                const isLikelyChordPro = text.includes('[') && text.includes(']');
+                if (isLikelyChordPro) {
+                    const tokens = text.match(/(\[.*?\]|\{.*?\}|[^\[\]\{\}]+)/g) || [];
+                    return tokens.map(token => (token.startsWith('[') || token.startsWith('{')) ? token : token.toUpperCase()).join('');
+                } else {
+                    return text.split('\n').map(line => ChordModule.isChordLine(line) ? line : line.toUpperCase()).join('\n');
+                }
+            },
+            
+            importFile(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.newFile();
+                    let lyrics = "";
+                    e.target.result.split('\n').forEach(line => {
+                        if (line.toLowerCase().startsWith('{title:')) this.app.DOMElements.songTitle.value = line.slice(7, -1).trim();
+                        else if (line.toLowerCase().startsWith('{artist:')) this.app.DOMElements.composer.value = line.slice(8, -1).trim();
+                        else if (line.toLowerCase().startsWith('{key:')) this.app.DOMElements.key.value = line.slice(5, -1).trim();
+                        else lyrics += line + '\n';
+                    });
+                    this.app.DOMElements.songLyrics.value = this.processTextForUppercase(lyrics.trim());
+                    this.app.state.originalLyrics = this.app.DOMElements.songLyrics.value;
+                    this.app.state.originalKey = this.app.DOMElements.key.value;
+                    HistoryModule.saveState(true);
+                    this.app.renderAll();
+                    UIModule.showToast('Arquivo importado!');
+                };
+                reader.readAsText(file);
+            },
+            
+            exportFile() {
+                const { songTitle, composer, key, songLyrics } = this.app.DOMElements;
+                if (!songTitle.value || !composer.value || key.value === "-") {
+                    UIModule.showToast("Preencha Título, Composição e Tom.", true);
+                    return;
+                }
+                const content = `{title: ${songTitle.value}}\n{artist: ${composer.value}}\n{key: ${key.value}}\n\n${songLyrics.value}`;
+                const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = `${songTitle.value.replace(/[\\/:*?"<>|]/g, "_")}.cho`;
+                link.click();
+            }
+        };
+
+        // Inicia a aplicação
+        App.init();
     });
-
-    chordlist.appendChild(button);
-});
-
-    e.preventDefault();
-
-    // === Torna o modal visível temporariamente para medir ===
-    chordlist.style.visibility = 'hidden';
-    chordlist.style.display = 'block';
-    chordlist.style.top = '-9999px';
-    chordlist.style.left = '-9999px';
-
-const coords = getCaretCoordinates(textarea, textarea.selectionStart);
-
-const modalWidth = chordlist.offsetWidth || 180;
-const modalHeight = chordlist.offsetHeight || 160;
-
-const offsetRight = 15;
-const offsetVertical = -modalHeight / 2;
-
-const top = coords.top + offsetVertical;
-const left = coords.left + offsetRight;
-
-chordlist.style.position = "absolute";
-chordlist.style.top = `${top}px`;
-chordlist.style.left = `${left}px`;
-chordlist.style.display = "block";
-chordlist.style.visibility = "visible";
-  } else {
-    chordlist.style.display = 'none';
-  }
-});
-
-
-function getCaretCoordinates(element, position) {
-  const div = document.createElement("div");
-  const style = getComputedStyle(element);
-  const properties = [
-    'direction', 'boxSizing', 'width', 'height', 'overflowX', 'overflowY',
-    'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth',
-    'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
-    'fontStyle', 'fontVariant', 'fontWeight', 'fontStretch', 'fontSize',
-    'fontSizeAdjust', 'lineHeight', 'fontFamily', 'textAlign', 'textTransform',
-    'textIndent', 'textDecoration', 'letterSpacing', 'wordSpacing', 'tabSize',
-    'MozTabSize'
-  ];
-
-  div.id = "caret-position-mirror-div";
-  document.body.appendChild(div);
-
-  const divStyle = div.style;
-  divStyle.whiteSpace = "pre-wrap";
-  divStyle.position = "absolute";
-  divStyle.visibility = "hidden";
-
-  properties.forEach(prop => {
-    divStyle[prop] = style[prop];
-  });
-
-  const text = element.value.substring(0, position);
-  const span = document.createElement("span");
-  span.textContent = element.value.substring(position) || ".";
-
-  div.textContent = text;
-  div.appendChild(span);
-
-  const rect = element.getBoundingClientRect();
-  const coordinates = {
-    top: rect.top + span.offsetTop - element.scrollTop + window.scrollY,
-    left: rect.left + span.offsetLeft - element.scrollLeft + window.scrollX
-  };
-
-  document.body.removeChild(div);
-  return coordinates;
-}
-
-
-// Função para adicionar um acorde à lista de acordes usados  
-function addUsedChord(chord) {  
-   if (!usedChordsArray.includes(chord)) {  
-      usedChordsArray.push(chord);  
-      const chordButton = document.createElement('button');  
-      chordButton.textContent = chord;  
-      chordButton.addEventListener('click', function() { 
-
-// Inserir o acorde na textarea songLyrics  
-        const textarea = document.getElementById('songLyrics');  
-        const cursorPos = textarea.selectionStart;  
-        const textBefore = textarea.value.substring(0, cursorPos);  
-        const textAfter = textarea.value.substring(cursorPos);  
-        textarea.value = textBefore + '[' + chord + ']' + textAfter;  
-        textarea.setSelectionRange(cursorPos + chord.length + 2, cursorPos + chord.length + 2);  
-      });  
-      usedChordsList.appendChild(chordButton);  
-   }  
-}
-  
-// Função para remover um acorde da lista de acordes usados  
-function removeUsedChord(chord) {  
-   const chordButtons = usedChordsList.children;  
-   for (let i = 0; i < chordButtons.length; i++) {  
-      if (chordButtons[i].textContent === chord) {  
-        usedChordsList.removeChild(chordButtons[i]);  
-        break;  
-      }  
-   }  
-}  
- 
-  
-// Adicionar evento de click fora da janela de acordes para fechá-la  
-document.addEventListener('click', function(event) {  
-   if (event.target !== chordlist && !chordlist.contains(event.target)) {  
-      chordlist.style.display = 'none';  
-   }  
-});  
-  
-// Função para inserir acorde no formato ChordPro  
-function inserirAcorde(acorde, cursorPos) {  
-   const before = textarea.value.slice(0, cursorPos);  
-   const after = textarea.value.slice(cursorPos);  
-   textarea.value = before + `[${acorde}]` + after; // Insere o acorde  
-   textarea.selectionStart = cursorPos + acorde.length + 2; // Ajusta a posição do cursor após o acorde  
-   textarea.selectionEnd = textarea.selectionStart; // Garante que o cursor fique na posição correta  
-   chordlist.style.display = 'none';
-   salvarEstado();  
-}  
-  
-// Adicionar evento de click ao documento para ocultar a lista de acordes  
-document.addEventListener('click', function(e) {  
-   const chordlist = document.getElementById('chordlist');  
-   if (chordlist && !chordlist.contains(e.target) && e.target !== document.getElementById('songLyrics')) {  
-      chordlist.style.display = 'none';  
-   }  
-});
-
-// FUNÇÃO LIMPA ÁREA DE ACORDES USADOS
-  
-function limparAcordesUsados() {  
-  usedChordsList.innerHTML = '';  
-  usedChordsArray = [];  
-}
-
-const clearButton = document.getElementById('limparAcordesUsados');  
-clearButton.addEventListener('click', limparAcordesUsados);
-
-
-/* EXPORTAR ChordPro */
-
-function exportChordPro() {
-    const content = document.getElementById("songLyrics").value;
-    const title = document.getElementById("songTitle").value.trim();
-    const composer = document.getElementById("composer").value.trim();
-    const key = document.getElementById("key").value;
-
-    // Verificações obrigatórias
-    if (!title) {
-        alert("Digite o título da música antes de exportar.");
-        return;
-    }
-
-    if (!composer) {
-        alert("Digite o nome do compositor antes de exportar.");
-        return;
-    }
-
-    if (!key || key === "-") {
-        alert("Selecione a tonalidade (tom) antes de exportar.");
-        return;
-    }
-
-    if (!content.trim()) {
-        alert("Digite a cifra antes de exportar.");
-        return;
-    }
-
-    // Monta o conteúdo do arquivo CHORDPRO
-    const chordProContent = `{title: ${title}}\n{artist: ${composer}}\n{key: ${key}}\n\n${content}`;
-
-    // Nome seguro para o arquivo
-    const safeTitle = title.replace(/[\\/:*?"<>|]/g, "_");
-
-    // Gera o arquivo e faz o download
-    const blob = new Blob([chordProContent], { type: "text/plain;charset=utf-8" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${safeTitle}.cho`;
-    link.click();
-}
-
-
-/* CONVERTE TÍTULO EM CAIXA ALTA */
-
-function convertToUpperCase() {
-    const input = document.getElementById('songTitle');
-    input.value = input.value.toUpperCase(); // Converte o valor para maiúsculas
-}
-
-/* DEFINIR NEGRITO-REFRÃO */
-
-function inserirRefrao() {
-    const textarea = document.getElementById("songLyrics");
-    const texto = textarea.value;
-    
-    // Posição da seleção
-    const inicio = textarea.selectionStart;
-    const fim = textarea.selectionEnd;
-    
-    // Texto selecionado
-    const selecionado = texto.substring(inicio, fim);
-    
-    // Novo texto com Códigos Refrão
-    const novoTexto = texto.substring(0, inicio) + "{C:Chorus}\n" + selecionado + "\n{C:}" + texto.substring(fim);
-    
-    // Atualiza o valor no textarea
-    textarea.value = novoTexto;
-    salvarEstado();
-}
-
-/* DEFINIR CÔRO */
-
-function inserirCoro() {
-    const textarea = document.getElementById("songLyrics");
-    const texto = textarea.value;
-    
-    // Posição da seleção
-    const inicio = textarea.selectionStart;
-    const fim = textarea.selectionEnd;
-    
-    // Texto selecionado
-    const selecionado = texto.substring(inicio, fim);
-    
-    // Novo texto com Códigos Refrão
-    const novoTexto = texto.substring(0, inicio) + "{textfill: yellow}\n" + selecionado + "\n{textfill}" + texto.substring(fim);
-    
-    // Atualiza o valor no textarea
-    textarea.value = novoTexto;
-    salvarEstado();
-}
-
-/* INSERIR TAG BIS */
-
-function inserirBis() {
-  const textarea = document.getElementById('songLyrics');
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-
-  // Novo texto a ser inserido no local do cursor
-  const newText = `\n{textfill: #00ff00}\nBIS\n{textfill}\n`;
-
-  // Atualiza o conteúdo do textarea
-  textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
-
-  // Ajusta o cursor para ficar logo após o texto inserido
-  textarea.selectionStart = textarea.selectionEnd = start + newText.length;
-  
-  // Dá o foco de volta ao textarea
-  textarea.focus();
-salvarEstado();
-}
-
-/* INSERIR TAG REFRÃO */
-
-function inserirtagRefrao() {
-  const textarea = document.getElementById('songLyrics');
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-
-  // Novo texto a ser inserido no local do cursor
-  const newText = `\n{textfill: #00ffff}\nREFRÃO\n{textfill}\n`;
-
-  // Atualiza o conteúdo do textarea
-  textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
-
-  // Ajusta o cursor para ficar logo após o texto inserido
-  textarea.selectionStart = textarea.selectionEnd = start + newText.length;
-  
-  // Dá o foco de volta ao textarea
-  textarea.focus();
-salvarEstado();
-}
-
-/* INSERIR TAG TRANSIÇÃO */
-
-function inserirtagTransicao() {
-  const textarea = document.getElementById('songLyrics');
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-
-  // Novo texto a ser inserido no local do cursor
-  const newText = `\n{textfill: #ffab44}\nTRANSIÇÃO\n{textfill}\n`;
-
-  // Atualiza o conteúdo do textarea
-  textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
-
-  // Ajusta o cursor para ficar logo após o texto inserido
-  textarea.selectionStart = textarea.selectionEnd = start + newText.length;
-  
-  // Dá o foco de volta ao textarea
-  textarea.focus();
-salvarEstado();
-}
-
-/* INSERIR TAG OBSERVAÇÃO */
-
-function inserirtagObs() {
-  const textarea = document.getElementById('songLyrics');
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-
-  // Novo texto a ser inserido no local do cursor
-  const newText = `\n{textfill: #ff9999}\nOBSERVAÇÃO\n{textfill}\n`;
-
-  // Atualiza o conteúdo do textarea
-  textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
-
-  // Ajusta o cursor para ficar logo após o texto inserido
-  textarea.selectionStart = textarea.selectionEnd = start + newText.length;
-  
-  // Dá o foco de volta ao textarea
-  textarea.focus();
-salvarEstado();
-}
-
-/* LIMPAR CIFRA NA TEXTAREA */
-
-function limparCifra() {
-    const textarea = document.getElementById('songLyrics');
-    textarea.value = textarea.value.replace(/\[.*?\]/g, '');
-    salvarEstado();
-}
-
-/* FUNÇÃO RESETAR PÁGINA - BOTÃO LIMPAR TUDO*/
-
-
-function resetarEstado() {
-  textoOriginal = '';
-  tomSalvo = '';
-  transposto = false;
-  undoStack = [];
-  redoStack = [];
-  currentText = '';
-}
-
-
-function novoArquivo() {
-  resetarEstado();
-  document.getElementById("songTitle").value = '';
-  document.getElementById("composer").value = '';
-  document.getElementById("key").value = '-';
-  document.getElementById("songLyrics").value = '';
-  document.getElementById("visor").innerHTML = '';
-  document.getElementById("used-chords-list").innerHTML = '';
-}
-
-
-/* FUNÇÕES DESFAZER E REFAZER*/
-
-function salvarEstado() {
-  const textarea = document.getElementById('songLyrics');
-  const textoAtual = textarea.value;
-  if (textoAtual !== currentText) {
-    undoStack.push(currentText);
-    currentText = textoAtual;
-    redoStack = []; // limpa o histórico de "refazer"
-  }
-}
-
-function desfazer() {
-  const textarea = document.getElementById('songLyrics');
-  if (undoStack.length > 0) {
-    redoStack.push(currentText);
-    currentText = undoStack.pop();
-    textarea.value = currentText;
-    renderVisor(); // atualiza visualização
-  }
-}
-
-function refazer() {
-  const textarea = document.getElementById('songLyrics');
-  if (redoStack.length > 0) {
-    undoStack.push(currentText);
-    currentText = redoStack.pop();
-    textarea.value = currentText;
-    renderVisor();
-  }
-}
-
-/* Atalhos de teclado */
-
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.key === 'z') {
-    e.preventDefault();
-    desfazer();
-  }
-  if (e.ctrlKey && e.key === 'y') {
-    e.preventDefault();
-    refazer();
-  }
-});
-
-
     </script>
 </body>
 </html>
+
